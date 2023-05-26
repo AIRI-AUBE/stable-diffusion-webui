@@ -1,4 +1,4 @@
-#sourced from A1111!!!!!
+# sourced from A1111!!!!! Current WIP version
 
 # Stable Diffusion web UI
 A browser interface based on Gradio library for Stable Diffusion.
