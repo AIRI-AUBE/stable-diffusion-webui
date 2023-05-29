@@ -56,7 +56,7 @@ then
 fi
 
 # this script cannot be run as root by default
-can_run_as_root=0
+can_run_as_root=1
 
 # read any command line flags to the webui.sh script
 while getopts "f" flag > /dev/null 2>&1
@@ -79,6 +79,10 @@ delimiter="################################################################"
 printf "\n%s\n" "${delimiter}"
 printf "\e[1m\e[32mInstall script for stable-diffusion + Web UI\n"
 printf "\e[1m\e[34mTested on Debian 11 (Bullseye)\e[0m"
+printf "\n%s\n" "${delimiter}"
+
+printf "\n%s\n" "${delimiter}"
+printf "Repo already cloned, using it as install directory"
 printf "\n%s\n" "${delimiter}"
 
 # Do not run as root

@@ -8,15 +8,12 @@ __pycache__
 /venv
 /tmp
 /model.ckpt
-/models/**/*
 /GFPGANv1.3.pth
 /gfpgan/weights/*.pth
 /ui-config.json
 /outputs
-/config.json
 /log
 /webui.settings.bat
-/embeddings
 /styles.csv
 /params.txt
 /styles.csv.bak
@@ -37,3 +34,5 @@ notification.mp3
 /node_modules
 /package-lock.json
 /.coverage*
+build.info
+**/.DS_Store
