@@ -49,7 +49,7 @@ or any other error regarding unsuccessful package (library) installation,
 please downgrade (or upgrade) to the latest version of 3.10 Python
 and delete current Python and "venv" folder in WebUI's directory.
 
-You can download 3.10 Python from here: https://www.python.org/downloads/release/python-3106/
+You can download 3.10 Python from here: https://www.python.org/downloads/release/python-3109/
 
 {"Alternatively, use a binary release of WebUI: https://github.com/AUTOMATIC1111/stable-diffusion-webui/releases" if is_windows else ""}
 
@@ -237,7 +237,7 @@ def run_extensions_installers(settings_file):
 
 
 def prepare_environment():
-    torch_command = os.environ.get('TORCH_COMMAND', "pip install torch==2.0.1 torchvision==0.15.2 --extra-index-url https://download.pytorch.org/whl/cu118")
+    torch_command = os.environ.get('TORCH_COMMAND', "pip install torch==2.0.0 torchvision==0.15.2 --extra-index-url https://download.pytorch.org/whl/cu118")
     requirements_file = os.environ.get('REQS_FILE', "requirements_versions.txt")
 
     xformers_package = os.environ.get('XFORMERS_PACKAGE', 'xformers==0.0.17')
@@ -310,7 +310,7 @@ def prepare_environment():
 
     if not os.path.isfile(requirements_file):
         requirements_file = os.path.join(script_path, requirements_file)
-    run_pip(f"install -r \"{requirements_file}\"", "requirements")
+    run_pip(f"install -r \"{requirements_file}\"", "requirements for Web UI")
 
     run_extensions_installers(settings_file=args.ui_settings_file)
 
@@ -359,7 +359,9 @@ def tests(test_dir):
 def start():
     print(f"Launching {'API server' if '--nowebui' in sys.argv else 'Web UI'} with arguments: {' '.join(sys.argv[1:])}")
     import webui
-    if '--nowebui' in sys.argv:
+    if '--train' in sys.argv:
+        webui.train()
+    elif '--nowebui' in sys.argv:
         webui.api_only()
     else:
         webui.webui()
