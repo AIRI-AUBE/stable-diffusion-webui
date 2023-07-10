@@ -400,7 +400,7 @@ def webui():
             server_port=cmd_opts.port,
             ssl_keyfile=cmd_opts.tls_keyfile,
             ssl_certfile=cmd_opts.tls_certfile,
-            ssl_verify=cmd_opts.disable_tls_verify,
+            # ssl_verify=cmd_opts.disable_tls_verify, # Hal: Disable because of gradio version issue for now. Enable and test in the later versions https://github.com/AUTOMATIC1111/stable-diffusion-webui/issues/9972
             debug=cmd_opts.gradio_debug,
             auth=[tuple(cred.split(':')) for cred in gradio_auth_creds] if gradio_auth_creds else None,
             inbrowser=cmd_opts.autolaunch,
