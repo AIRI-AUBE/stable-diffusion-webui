@@ -1,9 +1,5 @@
 __pycache__
 *.ckpt
-*.safetensors
-*.pth
-/ESRGAN/*
-/SwinIR/*
 /repositories
 /venv
 /tmp
@@ -33,3 +29,6 @@ notification.mp3
 /config_states/
 build.info
 **/.DS_Store
+models/Stable-diffusion/00v2.1_768-ema-pruned.safetensors
+models/Stable-diffusion/00v2.1_768-ema-pruned.yaml
+webui-user.bat
