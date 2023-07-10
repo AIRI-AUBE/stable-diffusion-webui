@@ -823,16 +823,14 @@ region_name = boto3.session.Session().region_name if not cmd_opts.train else cmd
 s3_client = boto3.client('s3', region_name=region_name)
 endpointUrl = s3_client.meta.endpoint_url
 s3_client = boto3.client('s3', endpoint_url=endpointUrl, region_name=region_name)
-s3_resource = boto3.resource('s3')
+s3_resource= boto3.resource('s3')
 generated_images_s3uri = os.environ.get('generated_images_s3uri', None)
-
 
 def get_bucket_and_key(s3uri):
     pos = s3uri.find('/', 5)
-    bucket = s3uri[5: pos]
-    key = s3uri[pos + 1:]
+    bucket = s3uri[5 : pos]
+    key = s3uri[pos + 1 : ]
     return bucket, key
-
 
 def s3_download(s3uri, path):
     global cache
@@ -841,8 +839,8 @@ def s3_download(s3uri, path):
     os.system(f'ls -l {os.path.dirname(path)}')
 
     pos = s3uri.find('/', 5)
-    bucket = s3uri[5: pos]
-    key = s3uri[pos + 1:]
+    bucket = s3uri[5 : pos]
+    key = s3uri[pos + 1 : ]
 
     objects = []
     paginator = s3_client.get_paginator('list_objects_v2')
@@ -853,27 +851,29 @@ def s3_download(s3uri, path):
                 objects.append(obj)
         if 'NextContinuationToken' in page:
             page_iterator = paginator.paginate(Bucket=bucket, Prefix=key,
-                                               ContinuationToken=page['NextContinuationToken'])
+                                                ContinuationToken=page['NextContinuationToken'])
 
-    if os.path.isfile('cache'):
-        cache = json.load(open('cache', 'r'))
+    try:
+        if os.path.isfile('cache'):
+            cache = json.load(open('cache', 'r'))
+    except:
+        pass
 
     for obj in objects:
         if obj['Size'] == 0:
             continue
         response = s3_client.head_object(
-            Bucket=bucket,
-            Key=obj['Key']
+            Bucket = bucket,
+            Key =  obj['Key']
         )
         obj_key = 's3://{0}/{1}'.format(bucket, obj['Key'])
         if obj_key not in cache or cache[obj_key] != response['ETag']:
-            filename = obj['Key'][obj['Key'].rfind('/') + 1:]
+            filename = obj['Key'][obj['Key'].rfind('/') + 1 : ]
 
             s3_client.download_file(bucket, obj['Key'], os.path.join(path, filename))
             cache[obj_key] = response['ETag']
 
     json.dump(cache, open('cache', 'w'))
-
 
 def http_download(httpuri, path):
     with requests.get(httpuri, stream=True) as r:
@@ -882,11 +882,10 @@ def http_download(httpuri, path):
             for chunk in r.iter_content(chunk_size=8192):
                 f.write(chunk)
 
-
 def upload_s3files(s3uri, file_path_with_pattern):
     pos = s3uri.find('/', 5)
-    bucket = s3uri[5: pos]
-    key = s3uri[pos + 1:]
+    bucket = s3uri[5 : pos]
+    key = s3uri[pos + 1 : ]
 
     try:
         for file_path in glob.glob(file_path_with_pattern):
@@ -899,16 +898,15 @@ def upload_s3files(s3uri, file_path_with_pattern):
         return False
     return True
 
-
 def upload_s3folder(s3uri, file_path):
     pos = s3uri.find('/', 5)
-    bucket = s3uri[5: pos]
-    key = s3uri[pos + 1:]
+    bucket = s3uri[5 : pos]
+    key = s3uri[pos + 1 : ]
 
     try:
         for path, _, files in os.walk(file_path):
             for file in files:
-                dest_path = path.replace(file_path, "")
+                dest_path = path.replace(file_path,"")
                 __s3file = f'{key}{dest_path}/{file}'
                 __local_file = os.path.join(path, file)
                 print(__local_file, __s3file)
