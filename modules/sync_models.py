@@ -30,6 +30,7 @@ def check_space_s3_download(s3_client, bucket_name, s3_folder, local_folder, fil
                 shared.cn_models_Ref.add_models_ref('{0} [{1}]'.format(os.path.splitext(file)[0], hash))
             elif mode == 'lora':
                 shared.lora_models_Ref.add_models_ref('{0} [{1}]'.format(os.path.splitext(file)[0], hash))
+                            #TODO: add????
             print(f'download_file success:from {bucket_name}/{src} to {dist}')
         except Exception as e:
             print(f'download_file error: from {bucket_name}/{src} to {dist}')
@@ -51,6 +52,7 @@ def free_local_disk(local_folder, size,mode):
         models_Ref = shared.cn_models_Ref
     elif mode == 'lora':
         models_Ref = shared.lora_models_Ref
+                    #TODO: add
     model_name,ref_cnt  = models_Ref.get_least_ref_model()
     print (f'shared.{mode}_models_Ref:{models_Ref.get_models_ref_dict()} -- model_name:{model_name}')
     if model_name and ref_cnt:
@@ -153,6 +155,7 @@ def sync_s3_folder(local_folder, cache_dir,mode):
             s3_folder = shared.s3_folder_cn 
         elif mode == 'lora':
             s3_folder = shared.s3_folder_lora
+                        #TODO: add
         else: 
             s3_folder = ''
         # Check and Create tmp folders 
@@ -222,6 +225,7 @@ def sync_s3_folder(local_folder, cache_dir,mode):
                     script_callbacks.update_cn_models_callback()
             elif mode == 'lora':
                 print('Nothing To do')
+                            #TODO: add
 
     # Create a thread function to keep syncing with the S3 folder
     def sync_thread(mode):  

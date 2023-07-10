@@ -24,6 +24,7 @@ models_s3_bucket = None
 s3_folder_sd = None
 s3_folder_cn = None
 s3_folder_lora = None
+        #TODO: add
 syncLock = threading.Lock()
 tmp_models_dir = '/tmp/models'
 tmp_cache_dir = '/tmp/model_sync_cache'
@@ -67,6 +68,7 @@ class ModelsRef:
 sd_models_Ref = ModelsRef()
 cn_models_Ref = ModelsRef()
 lora_models_Ref = ModelsRef()
+        #TODO: add
 
 parser = cmd_args.parser
 
@@ -925,8 +927,9 @@ def get_bucket_and_key(s3uri):
 def s3_download(s3uri, path):
     global cache
 
-    print('---path---', path)
-    os.system(f'ls -l {os.path.dirname(path)}')
+    #TODO: to delete
+    # print('---path---', path)
+    # os.system(f'ls -l {os.path.dirname(path)}')
 
     pos = s3uri.find('/', 5)
     bucket = s3uri[5 : pos]
