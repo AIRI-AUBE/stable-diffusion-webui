@@ -885,7 +885,7 @@ class Api:
 
     def invocations(self, req: models.InvocationsRequest):
         with self.invocations_lock:
-            print('----------------------------invocation---------------------------')
+            print("\n ----------------------------invocation---------------------------")
             # self.print_nested_dictionary(req, 50) # this is where debug happens
             try:
                 self.req_logging(req)
