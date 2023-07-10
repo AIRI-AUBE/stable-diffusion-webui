@@ -828,6 +828,7 @@ class Api:
             cuda = {'error': f'{err}'}
         return models.MemoryResponse(ram=ram, cuda=cuda)
     def post_invocations(self, b64images, quality):
+        print('finished image generation')
         if shared.generated_images_s3uri:
             bucket, key = shared.get_bucket_and_key(shared.generated_images_s3uri)
             if key.endswith('/'):
@@ -843,8 +844,10 @@ class Api:
                     Key=f'{key}/{image_id}.{suffix}'
                 )
                 images.append(f's3://{bucket}/{key}/{image_id}.{suffix}')
+            print('image uploaded to S3')
             return images
         else:
+            print('skipping S3 upload, return as base64')
             return b64images
     
     def print_content(self, req: models.InvocationsRequest):
