@@ -457,7 +457,7 @@ class Api:
         if cn_image != "":
             img2imgreq.alwayson_scripts['controlnet']['args'][0]['image'] = cn_image
             img2imgreq.alwayson_scripts['controlnet']['args'][1]['image'] = cn_image
-            img2imgreq.alwayson_scripts['controlnet']['args'][2]['image'] = cn_image
+            img2imgreq.alwayson_scripts['controlnet']['args'][2]['image'] = init_images[0]
 
         mask = img2imgreq.mask
         if mask:
