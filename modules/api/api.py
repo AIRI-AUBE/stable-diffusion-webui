@@ -929,7 +929,7 @@ class Api:
                         sd_hijack.model_hijack.embedding_db.load_textual_inversion_embeddings()
                     response = self.text2imgapi(req.txt2img_payload)
                     response.images = self.post_invocations(response.images, quality)
-                    response.parameters = "deleted for faster transfer"
+                    response.parameters = {}
                     return response
                 elif req.task == 'image-to-image':
                     if embeddings_s3uri != '':
@@ -941,7 +941,7 @@ class Api:
                     else:
                         response = self.img2imgapi(req.img2img_payload)
                     response.images = self.post_invocations(response.images, quality)
-                    response.parameters = "deleted for faster transfer"                 
+                    response.parameters = {}                 
                     return response
                 elif req.task == 'upscale_from_feed':
                     #only get the one image (in base64)
@@ -954,17 +954,17 @@ class Api:
                     except Exception as e: # this is in fact obselete, because there will be a earlier return if OOM, won't reach here, but leaving here just in case
                         print(f"An error occurred: {e}, step one upscale failed, reverting to just 4x upscale without Img2Img process")
                     response.image = self.post_invocations([response.image], quality)[0]
-                    response.parameters = "deleted for faster transfer"                       
+                    response.parameters = {}                       
                     return response
                 elif req.task == 'extras-single-image':
                     response = self.extras_single_image_api(req.extras_single_payload)
                     response.image = self.post_invocations([response.image], quality)[0]
-                    response.parameters = "deleted for faster transfer"                       
+                    response.parameters = {}                       
                     return response
                 elif req.task == 'extras-batch-images':
                     response = self.extras_batch_images_api(req.extras_batch_payload)
                     response.images = self.post_invocations(response.images, quality)
-                    response.parameters = "deleted for faster transfer"                       
+                    response.parameters = {}                       
                     return response
                 elif req.task == 'interrogate':
                     response = self.interrogateapi(req.interrogate_payload)
