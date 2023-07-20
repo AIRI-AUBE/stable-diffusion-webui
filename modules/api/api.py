@@ -936,7 +936,7 @@ class Api:
                         shared.s3_download(embeddings_s3uri, shared.cmd_opts.embeddings_dir)
                         sd_hijack.model_hijack.embedding_db.load_textual_inversion_embeddings()
                     # if controlnet then there is an extra argument to pass, which is the 3-1 change
-                    if req.id == 'design_workflow':
+                    if 'design_workflow' in req.id:
                         response = self.img2imgapi(req.img2img_payload, req.cn_x3_image)
                     else:
                         response = self.img2imgapi(req.img2img_payload)
