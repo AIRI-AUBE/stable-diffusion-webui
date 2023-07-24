@@ -329,7 +329,7 @@ class InvocationsRequest(BaseModel):
     interrogate_payload: Optional[InterrogateRequest]
     progress_payload:Optional[ProgressRequest]
     post_options_payload:Optional[dict]
-    cn_x3_image:Optional[str]
+    cn_x3_image:Optional[str] # this is now obselete, but kept here in case of rollback
 
 class InvocationsErrorResponse(BaseModel):
     error: str = Field(title="Invocation error", description="Error response from invocation.")

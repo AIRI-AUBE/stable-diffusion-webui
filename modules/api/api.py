@@ -448,16 +448,10 @@ class Api:
 
         return models.TextToImageResponse(images=b64images, parameters=vars(populate), info=processed.js())
 
-    def img2imgapi(self, img2imgreq: models.StableDiffusionImg2ImgProcessingAPI, cn_image=""):
+    def img2imgapi(self, img2imgreq: models.StableDiffusionImg2ImgProcessingAPI):
         init_images = img2imgreq.init_images
         if init_images is None:
             raise HTTPException(status_code=404, detail="Init image not found")
-
-        #here I want to add the cn 3-1 transformation
-        if cn_image != "":
-            img2imgreq.alwayson_scripts['controlnet']['args'][0]['image'] = cn_image
-            img2imgreq.alwayson_scripts['controlnet']['args'][1]['image'] = cn_image
-            img2imgreq.alwayson_scripts['controlnet']['args'][2]['image'] = init_images[0]
 
         mask = img2imgreq.mask
         if mask:
@@ -935,11 +929,7 @@ class Api:
                     if embeddings_s3uri != '':
                         shared.s3_download(embeddings_s3uri, shared.cmd_opts.embeddings_dir)
                         sd_hijack.model_hijack.embedding_db.load_textual_inversion_embeddings()
-                    # if controlnet then there is an extra argument to pass, which is the 3-1 change
-                    if 'design_workflow' in req.id:
-                        response = self.img2imgapi(req.img2img_payload, req.cn_x3_image)
-                    else:
-                        response = self.img2imgapi(req.img2img_payload)
+                    response = self.img2imgapi(req.img2img_payload)
                     response.images = self.post_invocations(response.images, quality)
                     response.parameters.clear()                 
                     return response
