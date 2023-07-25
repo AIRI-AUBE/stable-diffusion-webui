@@ -951,30 +951,15 @@ class Api:
                         response = self.extras_single_image_api(req.extras_single_payload)
                     except Exception as e: # this is in fact obselete, because there will be a earlier return if OOM, won't reach here, but leaving here just in case
                         print(f"An error occurred: {e}, step one upscale failed, reverting to just 4x upscale without Img2Img process")
-                    response.image = self.post_invocations([response.image], quality)[0]
-                    response.parameters.clear()
-                    oldinfo = json.loads(response.info)
-                    oldinfo.pop("all_prompts",None)
-                    oldinfo.pop("all_negative_prompts",None)
-                    response.info = json.dumps(oldinfo)                                           
+                    response.image = self.post_invocations([response.image], quality)[0]                                         
                     return response
                 elif req.task == 'extras-single-image':
                     response = self.extras_single_image_api(req.extras_single_payload)
-                    response.image = self.post_invocations([response.image], quality)[0]
-                    oldinfo = json.loads(response.info)
-                    oldinfo.pop("all_prompts",None)
-                    oldinfo.pop("all_negative_prompts",None)
-                    response.info = json.dumps(oldinfo)                    
-                    response.parameters.clear()                       
+                    response.image = self.post_invocations([response.image], quality)[0]                                        
                     return response
                 elif req.task == 'extras-batch-images':
                     response = self.extras_batch_images_api(req.extras_batch_payload)
-                    response.images = self.post_invocations(response.images, quality)
-                    oldinfo = json.loads(response.info)
-                    oldinfo.pop("all_prompts",None)
-                    oldinfo.pop("all_negative_prompts",None)
-                    response.info = json.dumps(oldinfo)                    
-                    response.parameters.clear()                       
+                    response.images = self.post_invocations(response.images, quality)                                       
                     return response
                 elif req.task == 'interrogate':
                     response = self.interrogateapi(req.interrogate_payload)
