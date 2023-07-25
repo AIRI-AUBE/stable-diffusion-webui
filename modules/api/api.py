@@ -822,26 +822,32 @@ class Api:
             cuda = {'error': f'{err}'}
         return models.MemoryResponse(ram=ram, cuda=cuda)
     def post_invocations(self, b64images, quality):
-        print('finished image generation')
+        print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} finished image generation")
         if shared.generated_images_s3uri:
             bucket, key = shared.get_bucket_and_key(shared.generated_images_s3uri)
             if key.endswith('/'):
                 key = key[ : -1]
             images = []
             for b64image in b64images:
-                bytes_data = export_pil_to_bytes(decode_to_image(b64image), quality)
                 image_id = datetime.datetime.now().strftime(f"%Y%m%d%H%M%S-{uuid.uuid4()}")
+                debug_timestamp1 = datetime.datetime.now()
+                print(f"{image_id}: log@{debug_timestamp1.strftime(f'%Y%m%d%H%M%S')} start process to upload the resulting img at time in name.")
+                bytes_data = export_pil_to_bytes(decode_to_image(b64image), quality)
+                debug_timestamp2 = datetime.datetime.now()
+                print(f"{image_id}: log@{debug_timestamp2.strftime(f'%Y%m%d%H%M%S')} export_pil_to_bytes took {debug_timestamp2 - debug_timestamp1}.")
                 suffix = opts.samples_format.lower()
                 shared.s3_client.put_object(
                     Body=bytes_data,
                     Bucket=bucket,
                     Key=f'{key}/{image_id}.{suffix}'
                 )
+                debug_timestamp3 = datetime.datetime.now()
+                print(f"{image_id}: log@{debug_timestamp3.strftime(f'%Y%m%d%H%M%S')} upload to s3 took {debug_timestamp3 - debug_timestamp2}.")
                 images.append(f's3://{bucket}/{key}/{image_id}.{suffix}')
-            print('image uploaded to S3')
+            print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} all images uploaded to S3")
             return images
         else:
-            print('skipping S3 upload, return as base64')
+            print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} skipping S3 upload, return as base64")
             return b64images
     
     def print_content(self, req: models.InvocationsRequest):
