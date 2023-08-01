@@ -924,16 +924,22 @@ class Api:
                     print(shared.opts.data)
 
                 if req.task == 'text-to-image':
+                    print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} start preparing text-to-image response")
                     if embeddings_s3uri != '':
                         shared.s3_download(embeddings_s3uri, shared.cmd_opts.embeddings_dir)
                         sd_hijack.model_hijack.embedding_db.load_textual_inversion_embeddings()
+                        print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} finished checking embeddings_s3uri")
                     response = self.text2imgapi(req.txt2img_payload)
+                    print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} finished response = self.text2imgapi(req.txt2img_payload)")
                     response.images = self.post_invocations(response.images, quality)
+                    print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} finished response.images = self.post_invocations(response.images, quality)")
                     response.parameters.clear()
                     oldinfo = json.loads(response.info)
                     oldinfo.pop("all_prompts",None)
                     oldinfo.pop("all_negative_prompts",None)
+                    print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} finished oldinfo.pop")
                     response.info = json.dumps(oldinfo)
+                    print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} finished response.info = json.dumps(oldinfo), right before return response")
                     return response
                 elif req.task == 'image-to-image':
                     if embeddings_s3uri != '':
