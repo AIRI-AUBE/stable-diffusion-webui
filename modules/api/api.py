@@ -879,8 +879,9 @@ class Api:
 
     def invocations(self, req: models.InvocationsRequest):
         with self.invocations_lock:
-            print("\n ----------------------------invocation--------------------------- \n")
+            print("\n ----------------------------invocation--------------------------- ")
             try:
+                print("")
                 self.req_logging(req)
             except Exception as e:
                 print("console Log ran into issue: ", e)
