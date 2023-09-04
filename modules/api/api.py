@@ -822,7 +822,7 @@ class Api:
             cuda = {'error': f'{err}'}
         return models.MemoryResponse(ram=ram, cuda=cuda)
     def post_invocations(self, b64images, quality):
-        print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} finished image generation")
+        # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} finished image generation")
         if shared.generated_images_s3uri:
             bucket, key = shared.get_bucket_and_key(shared.generated_images_s3uri)
             if key.endswith('/'):
@@ -831,10 +831,10 @@ class Api:
             for b64image in b64images:
                 image_id = datetime.datetime.now().strftime(f"%Y%m%d%H%M%S-{uuid.uuid4()}")
                 debug_timestamp1 = datetime.datetime.now()
-                print(f"{image_id}: log@{debug_timestamp1.strftime(f'%Y%m%d%H%M%S')} start process to upload the resulting img at time in name.")
+                # print(f"{image_id}: log@{debug_timestamp1.strftime(f'%Y%m%d%H%M%S')} start process to upload the resulting img at time in name.")
                 bytes_data = export_pil_to_bytes(decode_to_image(b64image), quality)
                 debug_timestamp2 = datetime.datetime.now()
-                print(f"{image_id}: log@{debug_timestamp2.strftime(f'%Y%m%d%H%M%S')} export_pil_to_bytes took {debug_timestamp2 - debug_timestamp1}.")
+                # print(f"{image_id}: log@{debug_timestamp2.strftime(f'%Y%m%d%H%M%S')} export_pil_to_bytes took {debug_timestamp2 - debug_timestamp1}.")
                 suffix = opts.samples_format.lower()
                 shared.s3_client.put_object(
                     Body=bytes_data,
@@ -842,22 +842,22 @@ class Api:
                     Key=f'{key}/{image_id}.{suffix}'
                 )
                 debug_timestamp3 = datetime.datetime.now()
-                print(f"{image_id}: log@{debug_timestamp3.strftime(f'%Y%m%d%H%M%S')} upload to s3 took {debug_timestamp3 - debug_timestamp2}.")
+                # print(f"{image_id}: log@{debug_timestamp3.strftime(f'%Y%m%d%H%M%S')} upload to s3 took {debug_timestamp3 - debug_timestamp2}.")
                 images.append(f's3://{bucket}/{key}/{image_id}.{suffix}')
-            print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} all images uploaded to S3")
+            # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} all images uploaded to S3")
             return images
         else:
-            print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} skipping S3 upload, return as base64")
+            # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} skipping S3 upload, return as base64")
             return b64images
     
-    def print_content(self, req: models.InvocationsRequest):
-        try:
-            new_req = copy.deepcopy(req)
-            if req.img2img_payload != None:
-                new_req.img2img_payload.init_images=['a total of ' + str(len(new_req.img2img_payload.init_images)) + ' images were sent as base 64']
-                print(new_req)
-        except Exception as e:
-            print("printing method did not work, bypassing...error:", e)
+    # def print_content(self, req: models.InvocationsRequest):
+    #     try:
+    #         new_req = copy.deepcopy(req)
+    #         if req.img2img_payload != None:
+    #             new_req.img2img_payload.init_images=['a total of ' + str(len(new_req.img2img_payload.init_images)) + ' images were sent as base 64']
+    #             print(new_req)
+    #     except Exception as e:
+    #         print("printing method did not work, bypassing...error:", e)
 
     def truncate_content(self, value, limit=1000):
         if isinstance(value, str):  # Only truncate if the value is a string
@@ -889,9 +889,9 @@ class Api:
     def invocations(self, req: models.InvocationsRequest):
         with self.invocations_lock:
             print("\n ----------------------------invocation---------------------------")
-            # self.print_nested_dictionary(req, 50) # this is where debug happens
             try:
-                self.req_logging(req)
+                # self.req_logging(req)
+                print(req)
             except Exception as e:
                 print("console Log ran into issue: ", e)
 
@@ -924,22 +924,22 @@ class Api:
                     print(shared.opts.data)
 
                 if req.task == 'text-to-image':
-                    print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} start preparing text-to-image response")
+                    # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} start preparing text-to-image response")
                     if embeddings_s3uri != '':
                         shared.s3_download(embeddings_s3uri, shared.cmd_opts.embeddings_dir)
                         sd_hijack.model_hijack.embedding_db.load_textual_inversion_embeddings()
-                        print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} finished checking embeddings_s3uri")
+                        # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} finished checking embeddings_s3uri")
                     response = self.text2imgapi(req.txt2img_payload)
-                    print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} finished response = self.text2imgapi(req.txt2img_payload)")
+                    # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} finished response = self.text2imgapi(req.txt2img_payload)")
                     response.images = self.post_invocations(response.images, quality)
-                    print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} finished response.images = self.post_invocations(response.images, quality)")
+                    # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} finished response.images = self.post_invocations(response.images, quality)")
                     response.parameters.clear()
                     oldinfo = json.loads(response.info)
                     oldinfo.pop("all_prompts",None)
                     oldinfo.pop("all_negative_prompts",None)
-                    print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} finished oldinfo.pop")
+                    # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} finished oldinfo.pop")
                     response.info = json.dumps(oldinfo)
-                    print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} finished response.info = json.dumps(oldinfo), right before return response")
+                    # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} finished response.info = json.dumps(oldinfo), right before return response")
                     return response
                 elif req.task == 'image-to-image':
                     if embeddings_s3uri != '':
@@ -979,15 +979,8 @@ class Api:
 
                 elif req.task == 'get-progress':
                     response = self.progressapi(req.progress_payload)
-                    print("____________getting progress result: ")
                     print(response)
                     return response
-                elif req.task == 'set-options':
-                    self.set_config(req.post_options_payload)
-                    print(req.post_options_payload)
-                    print(type(req.post_options_payload))
-                    print("————————————settings updated———————————")
-                    return "options has been set"
                 elif req.task == 'get-options':
                     response = self.get_config()
                     return response

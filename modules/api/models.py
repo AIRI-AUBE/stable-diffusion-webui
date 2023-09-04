@@ -318,6 +318,7 @@ class ScriptInfo(BaseModel):
 class InvocationsRequest(BaseModel):
     task: str
     id: Optional[str]
+    user_input:Optional[dict]
     model: Optional[str]
     vae: Optional[str]
     quality: Optional[int]
@@ -328,7 +329,6 @@ class InvocationsRequest(BaseModel):
     extras_batch_payload: Optional[ExtrasBatchImagesRequest]
     interrogate_payload: Optional[InterrogateRequest]
     progress_payload:Optional[ProgressRequest]
-    post_options_payload:Optional[dict]
     cn_x3_image:Optional[str] # this is now obselete, but kept here in case of rollback
 
 class InvocationsErrorResponse(BaseModel):
