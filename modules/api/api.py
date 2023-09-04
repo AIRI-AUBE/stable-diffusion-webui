@@ -849,15 +849,6 @@ class Api:
         else:
             # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} skipping S3 upload, return as base64")
             return b64images
-    
-    # def print_content(self, req: models.InvocationsRequest):
-    #     try:
-    #         new_req = copy.deepcopy(req)
-    #         if req.img2img_payload != None:
-    #             new_req.img2img_payload.init_images=['a total of ' + str(len(new_req.img2img_payload.init_images)) + ' images were sent as base 64']
-    #             print(new_req)
-    #     except Exception as e:
-    #         print("printing method did not work, bypassing...error:", e)
 
     def truncate_content(self, value, limit=1000):
         if isinstance(value, str):  # Only truncate if the value is a string
@@ -888,7 +879,7 @@ class Api:
 
     def invocations(self, req: models.InvocationsRequest):
         with self.invocations_lock:
-            print("\n ----------------------------invocation---------------------------")
+            print("\n ----------------------------invocation--------------------------- \n")
             try:
                 self.req_logging(req)
             except Exception as e:
