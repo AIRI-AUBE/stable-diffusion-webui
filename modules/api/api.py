@@ -865,7 +865,7 @@ class Api:
                 return value[:limit] + '...'
         return value
 
-    def req_logging(self, obj, indent=0):
+    def req_logging(self, obj, indent=1):
         if "__dict__" in dir(obj):  # if value is an object, dive into it
             items = obj.__dict__.items()
         elif isinstance(obj, dict):  # if value is a dictionary, get items
@@ -890,8 +890,7 @@ class Api:
         with self.invocations_lock:
             print("\n ----------------------------invocation---------------------------")
             try:
-                # self.req_logging(req)
-                print(req)
+                self.req_logging(req)
             except Exception as e:
                 print("console Log ran into issue: ", e)
 
