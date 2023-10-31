@@ -924,10 +924,10 @@ class Api:
                     # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} finished response = self.text2imgapi(req.txt2img_payload)")
                     response.images = self.post_invocations(response.images, quality)
                     # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} finished response.images = self.post_invocations(response.images, quality)")
-                    response.parameters.clear()
+                    # response.parameters.clear()
                     oldinfo = json.loads(response.info)
-                    oldinfo.pop("all_prompts",None)
-                    oldinfo.pop("all_negative_prompts",None)
+                    oldinfo.pop("all_prompts", None)
+                    oldinfo.pop("all_negative_prompts", None)
                     # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} finished oldinfo.pop")
                     response.info = json.dumps(oldinfo)
                     # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} finished response.info = json.dumps(oldinfo), right before return response")
@@ -938,10 +938,10 @@ class Api:
                         sd_hijack.model_hijack.embedding_db.load_textual_inversion_embeddings()
                     response = self.img2imgapi(req.img2img_payload)
                     response.images = self.post_invocations(response.images, quality)
-                    response.parameters.clear() 
+                    # response.parameters.clear()
                     oldinfo = json.loads(response.info)
-                    oldinfo.pop("all_prompts",None)
-                    oldinfo.pop("all_negative_prompts",None)
+                    oldinfo.pop("all_prompts", None)
+                    oldinfo.pop("all_negative_prompts", None)
                     response.info = json.dumps(oldinfo)                                    
                     return response
                 elif req.task == 'upscale_from_feed':
@@ -954,7 +954,12 @@ class Api:
                         response = self.extras_single_image_api(req.extras_single_payload)
                     except Exception as e: # this is in fact obselete, because there will be a earlier return if OOM, won't reach here, but leaving here just in case
                         print(f"An error occurred: {e}, step one upscale failed, reverting to just 4x upscale without Img2Img process")
-                    response.image = self.post_invocations([response.image], quality)[0]                                         
+                    response.image = self.post_invocations([response.image], quality)[0]
+                    # response.parameters.clear()
+                    oldinfo = json.loads(response.info)
+                    oldinfo.pop("all_prompts", None)
+                    oldinfo.pop("all_negative_prompts", None)
+                    response.info = json.dumps(oldinfo)
                     return response
                 elif req.task == 'extras-single-image':
                     response = self.extras_single_image_api(req.extras_single_payload)
