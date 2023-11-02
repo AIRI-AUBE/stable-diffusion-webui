@@ -1,4 +1,5 @@
 {
+    "samples_format": "jpeg",
     "control_net_model_config": "models/cldm_v21.yaml",
     "control_net_max_models_num": 3,
     "control_net_model_cache_size": 3,
