@@ -164,13 +164,13 @@ def export_pil_to_bytes(image, quality):
             date_taken = "2001:01:01 01:01:01"
             global user_input_data
             if "date_taken" in user_input_data:
-                date_taken = user_input_data.date_taken
+                date_taken = user_input_data['date_taken']
             copyright = "© AIRI Lab. All Rights Reserved."
             camera_maker = "AIRI Lab"
             camera_model = "AIRI Model 1.0"
             user_id = "AIRI tester"
             if "user_id" in user_input_data:
-                user_id = user_input_data.user_id
+                user_id = user_input_data['user_id']
             keywords = "Generated in AIRI platform. https://airilab.com"
             description = "An image processed by the AIRI platform."
             software = "AIRI Platform v1.0"
@@ -437,7 +437,7 @@ class Api:
             global user_input_data
             user_input_data = {}
             if "user_input" in request.alwayson_scripts:
-                user_input_data = request.alwayson_scripts.user_input
+                user_input_data = request.alwayson_scripts["user_input"]
                 request.alwayson_scripts.pop("user_input")
 
             for alwayson_script_name in request.alwayson_scripts.keys():
