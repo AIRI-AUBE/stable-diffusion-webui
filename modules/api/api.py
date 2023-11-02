@@ -41,6 +41,8 @@ import json
 import requests
 from datetime import date
 
+user_input_data = {}
+
 def upscaler_to_index(name: str):
     try:
         return [x.name.lower() for x in shared.sd_upscalers].index(name.lower())
@@ -159,11 +161,16 @@ def export_pil_to_bytes(image, quality):
         elif opts.samples_format.lower() in ("jpg", "jpeg", "webp"):
             # parameters = image.info.get('parameters', None)
             title = "AIRI"
-            date_taken = "2023:10:27 10:10:10"
+            date_taken = "2001:01:01 01:01:01"
+            global user_input_data
+            if "date_taken" in user_input_data:
+                date_taken = user_input_data.date_taken
             copyright = "© AIRI Lab. All Rights Reserved."
             camera_maker = "AIRI Lab"
             camera_model = "AIRI Model 1.0"
-            creator = "789****711"
+            user_id = "AIRI tester"
+            if "user_id" in user_input_data:
+                user_id = user_input_data.user_id
             keywords = "Generated in AIRI platform. https://airilab.com"
             description = "An image processed by the AIRI platform."
             software = "AIRI Platform v1.0"
@@ -177,7 +184,7 @@ def export_pil_to_bytes(image, quality):
                     piexif.ImageIFD.Make: camera_maker.encode('utf-8'),
                     piexif.ImageIFD.Model: camera_model.encode('utf-8'),
                     piexif.ImageIFD.Copyright: copyright.encode('utf-8'),
-                    piexif.ImageIFD.Artist: creator.encode('utf-8'),
+                    piexif.ImageIFD.Artist: user_id.encode('utf-8'),
                     piexif.ImageIFD.ProcessingSoftware: software.encode('utf-8'),
                     piexif.ImageIFD.Software: software.encode('utf-8'),
                     piexif.ImageIFD.DateTime: date_taken.encode('utf-8'),
@@ -193,8 +200,8 @@ def export_pil_to_bytes(image, quality):
                     piexif.ImageIFD.ProfileCopyright: copyright.encode('utf-8'),
                     piexif.ImageIFD.ProfileEmbedPolicy: software.encode('utf-8'),
                     piexif.ImageIFD.Rating: "5".encode('utf-8'),
-                    piexif.ImageIFD.ProfileName: creator.encode('utf-8'),
-                    piexif.ImageIFD.XPAuthor: creator.encode('utf-8'),
+                    piexif.ImageIFD.ProfileName: user_id.encode('utf-8'),
+                    piexif.ImageIFD.XPAuthor: user_id.encode('utf-8'),
                     piexif.ImageIFD.XPTitle: title.encode('utf-8'),
                     piexif.ImageIFD.XPKeywords: keywords.encode('utf-8'),
                     piexif.ImageIFD.XPComment: description.encode('utf-8'),
@@ -203,7 +210,7 @@ def export_pil_to_bytes(image, quality):
                 },
                 "Exif": {
                     piexif.ExifIFD.DateTimeOriginal: date_taken.encode('utf-8'),
-                    piexif.ExifIFD.CameraOwnerName: creator.encode('utf-8'),
+                    piexif.ExifIFD.CameraOwnerName: user_id.encode('utf-8'),
                     piexif.ExifIFD.DateTimeDigitized: date_taken.encode('utf-8'),
                     piexif.ExifIFD.DeviceSettingDescription: camera_model.encode('utf-8'),
                     piexif.ExifIFD.FileSource: keywords.encode('utf-8'),
@@ -427,6 +434,12 @@ class Api:
 
         # Now check for always on scripts
         if request.alwayson_scripts:
+            global user_input_data
+            user_input_data = {}
+            if "user_input" in request.alwayson_scripts:
+                user_input_data = request.alwayson_scripts.user_input
+                request.alwayson_scripts.pop("user_input")
+
             for alwayson_script_name in request.alwayson_scripts.keys():
                 alwayson_script = self.get_script(alwayson_script_name, script_runner)
                 if alwayson_script is None:
