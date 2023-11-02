@@ -1013,7 +1013,7 @@ class Api:
                     response.info = json.dumps(oldinfo)
 
                     # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} finished response.info = json.dumps(oldinfo), right before return response")
-                    print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} ### get_cmd_flags is {self.get_cmd_flags()}")
+                    # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} ### get_cmd_flags is {self.get_cmd_flags()}")
                     return response
                 elif req.task == 'image-to-image':
                     if embeddings_s3uri != '':
@@ -1027,7 +1027,7 @@ class Api:
                     oldinfo.pop("all_negative_prompts", None)
                     oldinfo.pop("infotexts", None)
                     response.info = json.dumps(oldinfo)
-                    print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} ### get_cmd_flags is {self.get_cmd_flags()}")
+                    # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} ### get_cmd_flags is {self.get_cmd_flags()}")
                     return response
                 elif req.task == 'upscale_from_feed':
                     #only get the one image (in base64)
@@ -1046,7 +1046,7 @@ class Api:
                     oldinfo.pop("all_negative_prompts", None)
                     oldinfo.pop("infotexts", None)
                     response.info = json.dumps(oldinfo)
-                    print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} ### get_cmd_flags is {self.get_cmd_flags()}")
+                    # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} ### get_cmd_flags is {self.get_cmd_flags()}")
                     return response
                 elif req.task == 'extras-single-image':
                     response = self.extras_single_image_api(req.extras_single_payload)
