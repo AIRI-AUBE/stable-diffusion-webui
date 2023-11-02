@@ -157,10 +157,71 @@ def export_pil_to_bytes(image, quality):
             image.save(output_bytes, format="PNG", pnginfo=(metadata if use_metadata else None), quality=quality if quality else opts.jpeg_quality)
 
         elif opts.samples_format.lower() in ("jpg", "jpeg", "webp"):
-            parameters = image.info.get('parameters', None)
-            exif_bytes = piexif.dump({
-                "Exif": { piexif.ExifIFD.UserComment: piexif.helper.UserComment.dump(parameters or "", encoding="unicode") }
-            })
+            # parameters = image.info.get('parameters', None)
+            title = "AIRI"
+            date_taken = "2023:10:27 10:10:10"
+            copyright = "© AIRI Lab. All Rights Reserved."
+            camera_maker = "AIRI Lab"
+            camera_model = "AIRI Model 1.0"
+            creator = "789****711"
+            keywords = "Generated in AIRI platform. https://airilab.com"
+            description = "An image processed by the AIRI platform."
+            software = "AIRI Platform v1.0"
+            imageid = "imageid?"
+            imagenum = "imagenum?"
+            seed = "seed?"
+
+            exif_dict = {
+                "0th": {
+                    piexif.ImageIFD.ImageDescription: description.encode('utf-8'),
+                    piexif.ImageIFD.Make: camera_maker.encode('utf-8'),
+                    piexif.ImageIFD.Model: camera_model.encode('utf-8'),
+                    piexif.ImageIFD.Copyright: copyright.encode('utf-8'),
+                    piexif.ImageIFD.Artist: creator.encode('utf-8'),
+                    piexif.ImageIFD.ProcessingSoftware: software.encode('utf-8'),
+                    piexif.ImageIFD.Software: software.encode('utf-8'),
+                    piexif.ImageIFD.DateTime: date_taken.encode('utf-8'),
+                    piexif.ImageIFD.HostComputer: software.encode('utf-8'),
+                    piexif.ImageIFD.ImageID: imageid.encode('utf-8'),
+                    piexif.ImageIFD.ImageNumber: imagenum.encode('utf-8'),
+                    piexif.ImageIFD.ImageHistory: keywords.encode('utf-8'),
+                    piexif.ImageIFD.ImageResources: description.encode('utf-8'),
+                    piexif.ImageIFD.Noise: seed.encode('utf-8'),
+                    piexif.ImageIFD.Predictor: camera_model.encode('utf-8'),
+                    piexif.ImageIFD.OriginalRawFileData: keywords.encode('utf-8'),
+                    piexif.ImageIFD.OriginalRawFileName: imageid.encode('utf-8'),
+                    piexif.ImageIFD.ProfileCopyright: copyright.encode('utf-8'),
+                    piexif.ImageIFD.ProfileEmbedPolicy: software.encode('utf-8'),
+                    piexif.ImageIFD.Rating: "5".encode('utf-8'),
+                    piexif.ImageIFD.ProfileName: creator.encode('utf-8'),
+                    piexif.ImageIFD.XPAuthor: creator.encode('utf-8'),
+                    piexif.ImageIFD.XPTitle: title.encode('utf-8'),
+                    piexif.ImageIFD.XPKeywords: keywords.encode('utf-8'),
+                    piexif.ImageIFD.XPComment: description.encode('utf-8'),
+                    piexif.ImageIFD.XPSubject: copyright.encode('utf-8'),
+
+                },
+                "Exif": {
+                    piexif.ExifIFD.DateTimeOriginal: date_taken.encode('utf-8'),
+                    piexif.ExifIFD.CameraOwnerName: creator.encode('utf-8'),
+                    piexif.ExifIFD.DateTimeDigitized: date_taken.encode('utf-8'),
+                    piexif.ExifIFD.DeviceSettingDescription: camera_model.encode('utf-8'),
+                    piexif.ExifIFD.FileSource: keywords.encode('utf-8'),
+                    piexif.ExifIFD.ImageUniqueID: imageid.encode('utf-8'),
+                    piexif.ExifIFD.LensMake: camera_maker.encode('utf-8'),
+                    piexif.ExifIFD.LensModel: camera_model.encode('utf-8'),
+                    piexif.ExifIFD.MakerNote: description.encode('utf-8'),
+                    piexif.ExifIFD.UserComment: description.encode('utf-8'),
+                }
+            }
+
+            # Convert dict to bytes
+            exif_bytes = piexif.dump(exif_dict)
+
+
+            # exif_bytes = piexif.dump({
+            #     "Exif": { piexif.ExifIFD.UserComment: piexif.helper.UserComment.dump(parameters or "", encoding="unicode") }
+            # })
             if opts.samples_format.lower() in ("jpg", "jpeg"):
                 image.save(output_bytes, format="JPEG", exif = exif_bytes, quality=quality if quality else opts.jpeg_quality)
             else:
@@ -924,12 +985,14 @@ class Api:
                     # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} finished response = self.text2imgapi(req.txt2img_payload)")
                     response.images = self.post_invocations(response.images, quality)
                     # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} finished response.images = self.post_invocations(response.images, quality)")
-                    # response.parameters.clear()
+                    data.pop("parameters", None)
                     oldinfo = json.loads(response.info)
                     oldinfo.pop("all_prompts", None)
                     oldinfo.pop("all_negative_prompts", None)
+                    oldinfo.pop("infotexts", None)
                     # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} finished oldinfo.pop")
                     response.info = json.dumps(oldinfo)
+
                     # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} finished response.info = json.dumps(oldinfo), right before return response")
                     print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} ### get_cmd_flags is {self.get_cmd_flags()}")
                     return response
@@ -939,10 +1002,11 @@ class Api:
                         sd_hijack.model_hijack.embedding_db.load_textual_inversion_embeddings()
                     response = self.img2imgapi(req.img2img_payload)
                     response.images = self.post_invocations(response.images, quality)
-                    # response.parameters.clear()
+                    data.pop("parameters", None)
                     oldinfo = json.loads(response.info)
                     oldinfo.pop("all_prompts", None)
                     oldinfo.pop("all_negative_prompts", None)
+                    oldinfo.pop("infotexts", None)
                     response.info = json.dumps(oldinfo)
                     print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} ### get_cmd_flags is {self.get_cmd_flags()}")
                     return response
@@ -957,10 +1021,11 @@ class Api:
                     except Exception as e: # this is in fact obselete, because there will be a earlier return if OOM, won't reach here, but leaving here just in case
                         print(f"An error occurred: {e}, step one upscale failed, reverting to just 4x upscale without Img2Img process")
                     response.image = self.post_invocations([response.image], quality)[0]
-                    # response.parameters.clear()
+                    data.pop("parameters", None)
                     oldinfo = json.loads(response.info)
                     oldinfo.pop("all_prompts", None)
                     oldinfo.pop("all_negative_prompts", None)
+                    oldinfo.pop("infotexts", None)
                     response.info = json.dumps(oldinfo)
                     print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} ### get_cmd_flags is {self.get_cmd_flags()}")
                     return response
