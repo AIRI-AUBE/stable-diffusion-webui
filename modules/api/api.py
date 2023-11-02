@@ -975,6 +975,12 @@ class Api:
                         shared.opts.data[key] = options[key]
                     print(shared.opts.data)
 
+                print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} ### shared.opts.data is {shared.opts.data}")
+
+                print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} ### shared.opts is {shared.opts}")
+
+                print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} ### shared.cmd_opts is {shared.cmd_opts}")
+
                 if req.task == 'text-to-image':
                     # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} start preparing text-to-image response")
                     if embeddings_s3uri != '':
