@@ -596,12 +596,14 @@ class Api:
 
         global user_input_data
         user_input_data = {}
-        if "user_input" in reqDict.alwayson_scripts:
-            user_input_data = reqDict.alwayson_scripts["user_input"]
-            reqDict.alwayson_scripts.pop("user_input")
-
         if 'alwayson_scripts' in reqDict:
-            reqDict.pop('alwayson_scripts', None)
+            if "user_input" in reqDict.alwayson_scripts:
+                user_input_data = reqDict.alwayson_scripts["user_input"]
+                reqDict.alwayson_scripts.pop("user_input")
+
+        if "user_input" in reqDict:
+            user_input_data = reqDict["user_input"]
+            reqDict.pop('user_input', None)
 
         with self.queue_lock:
             result = postprocessing.run_extras(extras_mode=0, image_folder="", input_dir="", output_dir="", save_output=False, **reqDict)
