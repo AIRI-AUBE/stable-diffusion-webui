@@ -146,6 +146,73 @@ def encode_pil_to_base64(image):
 
     return base64.b64encode(bytes_data)
 
+
+def set_img_exif_dict():
+    title = "AIRI"
+    date_taken = "2001:01:01 01:01:01"
+    global user_input_data
+    if "date_taken" in user_input_data:
+        date_taken = user_input_data['date_taken']
+    copyright = "© AIRI Lab. All Rights Reserved."
+    camera_maker = "AIRI Lab"
+    camera_model = "AIRI Model 1.0"
+    user_id = "AIRI tester"
+    if "user_id" in user_input_data:
+        user_id = user_input_data['user_id']
+    keywords = "Generated in AIRI platform. https://airilab.com"
+    description = "An image processed by the AIRI platform."
+    software = "AIRI Platform v1.0"
+    # imageid = "imageid?"
+    # imagenum = "imagenum?"
+    # seed = "seed?"
+
+    exif_dict = {
+        "0th": {
+            piexif.ImageIFD.ImageDescription: description.encode('utf-8'),
+            piexif.ImageIFD.Make: camera_maker.encode('utf-8'),
+            piexif.ImageIFD.Model: camera_model.encode('utf-8'),
+            piexif.ImageIFD.Copyright: copyright.encode('utf-8'),
+            piexif.ImageIFD.Artist: user_id.encode('utf-8'),
+            piexif.ImageIFD.ProcessingSoftware: software.encode('utf-8'),
+            piexif.ImageIFD.Software: software.encode('utf-8'),
+            piexif.ImageIFD.DateTime: date_taken.encode('utf-8'),
+            piexif.ImageIFD.HostComputer: software.encode('utf-8'),
+            # piexif.ImageIFD.ImageID: imageid.encode('utf-8'),
+            # piexif.ImageIFD.ImageNumber: imagenum.encode('utf-8'),
+            piexif.ImageIFD.ImageHistory: keywords.encode('utf-8'),
+            piexif.ImageIFD.ImageResources: description.encode('utf-8'),
+            # piexif.ImageIFD.Noise: seed.encode('utf-8'),
+            piexif.ImageIFD.Predictor: camera_model.encode('utf-8'),
+            piexif.ImageIFD.OriginalRawFileData: keywords.encode('utf-8'),
+            # piexif.ImageIFD.OriginalRawFileName: imageid.encode('utf-8'),
+            piexif.ImageIFD.ProfileCopyright: copyright.encode('utf-8'),
+            piexif.ImageIFD.ProfileEmbedPolicy: software.encode('utf-8'),
+            piexif.ImageIFD.Rating: "5".encode('utf-8'),
+            piexif.ImageIFD.ProfileName: user_id.encode('utf-8'),
+            # piexif.ImageIFD.XPAuthor: user_id.encode('utf-8'),
+            # piexif.ImageIFD.XPTitle: title.encode('utf-8'),
+            # piexif.ImageIFD.XPKeywords: keywords.encode('utf-8'),
+            # piexif.ImageIFD.XPComment: description.encode('utf-8'),
+            # piexif.ImageIFD.XPSubject: copyright.encode('utf-8'),
+
+        },
+        "Exif": {
+            piexif.ExifIFD.DateTimeOriginal: date_taken.encode('utf-8'),
+            piexif.ExifIFD.CameraOwnerName: user_id.encode('utf-8'),
+            piexif.ExifIFD.DateTimeDigitized: date_taken.encode('utf-8'),
+            piexif.ExifIFD.DeviceSettingDescription: camera_model.encode('utf-8'),
+            piexif.ExifIFD.FileSource: keywords.encode('utf-8'),
+            # piexif.ExifIFD.ImageUniqueID: imageid.encode('utf-8'),
+            piexif.ExifIFD.LensMake: camera_maker.encode('utf-8'),
+            piexif.ExifIFD.LensModel: camera_model.encode('utf-8'),
+            piexif.ExifIFD.MakerNote: description.encode('utf-8'),
+            piexif.ExifIFD.UserComment: description.encode('utf-8'),
+        }
+    }
+
+    return exif_dict
+
+
 def export_pil_to_bytes(image, quality):
     with io.BytesIO() as output_bytes:
 
@@ -160,71 +227,9 @@ def export_pil_to_bytes(image, quality):
 
         elif opts.samples_format.lower() in ("jpg", "jpeg", "webp"):
             # parameters = image.info.get('parameters', None)
-            title = "AIRI"
-            date_taken = "2001:01:01 01:01:01"
-            global user_input_data
-            if "date_taken" in user_input_data:
-                date_taken = user_input_data['date_taken']
-            copyright = "© AIRI Lab. All Rights Reserved."
-            camera_maker = "AIRI Lab"
-            camera_model = "AIRI Model 1.0"
-            user_id = "AIRI tester"
-            if "user_id" in user_input_data:
-                user_id = user_input_data['user_id']
-            keywords = "Generated in AIRI platform. https://airilab.com"
-            description = "An image processed by the AIRI platform."
-            software = "AIRI Platform v1.0"
-            imageid = "imageid?"
-            imagenum = "imagenum?"
-            seed = "seed?"
-
-            exif_dict = {
-                "0th": {
-                    piexif.ImageIFD.ImageDescription: description.encode('utf-8'),
-                    piexif.ImageIFD.Make: camera_maker.encode('utf-8'),
-                    piexif.ImageIFD.Model: camera_model.encode('utf-8'),
-                    piexif.ImageIFD.Copyright: copyright.encode('utf-8'),
-                    piexif.ImageIFD.Artist: user_id.encode('utf-8'),
-                    piexif.ImageIFD.ProcessingSoftware: software.encode('utf-8'),
-                    piexif.ImageIFD.Software: software.encode('utf-8'),
-                    piexif.ImageIFD.DateTime: date_taken.encode('utf-8'),
-                    piexif.ImageIFD.HostComputer: software.encode('utf-8'),
-                    piexif.ImageIFD.ImageID: imageid.encode('utf-8'),
-                    piexif.ImageIFD.ImageNumber: imagenum.encode('utf-8'),
-                    piexif.ImageIFD.ImageHistory: keywords.encode('utf-8'),
-                    piexif.ImageIFD.ImageResources: description.encode('utf-8'),
-                    piexif.ImageIFD.Noise: seed.encode('utf-8'),
-                    piexif.ImageIFD.Predictor: camera_model.encode('utf-8'),
-                    piexif.ImageIFD.OriginalRawFileData: keywords.encode('utf-8'),
-                    piexif.ImageIFD.OriginalRawFileName: imageid.encode('utf-8'),
-                    piexif.ImageIFD.ProfileCopyright: copyright.encode('utf-8'),
-                    piexif.ImageIFD.ProfileEmbedPolicy: software.encode('utf-8'),
-                    piexif.ImageIFD.Rating: "5".encode('utf-8'),
-                    piexif.ImageIFD.ProfileName: user_id.encode('utf-8'),
-                    piexif.ImageIFD.XPAuthor: user_id.encode('utf-8'),
-                    piexif.ImageIFD.XPTitle: title.encode('utf-8'),
-                    piexif.ImageIFD.XPKeywords: keywords.encode('utf-8'),
-                    piexif.ImageIFD.XPComment: description.encode('utf-8'),
-                    piexif.ImageIFD.XPSubject: copyright.encode('utf-8'),
-
-                },
-                "Exif": {
-                    piexif.ExifIFD.DateTimeOriginal: date_taken.encode('utf-8'),
-                    piexif.ExifIFD.CameraOwnerName: user_id.encode('utf-8'),
-                    piexif.ExifIFD.DateTimeDigitized: date_taken.encode('utf-8'),
-                    piexif.ExifIFD.DeviceSettingDescription: camera_model.encode('utf-8'),
-                    piexif.ExifIFD.FileSource: keywords.encode('utf-8'),
-                    piexif.ExifIFD.ImageUniqueID: imageid.encode('utf-8'),
-                    piexif.ExifIFD.LensMake: camera_maker.encode('utf-8'),
-                    piexif.ExifIFD.LensModel: camera_model.encode('utf-8'),
-                    piexif.ExifIFD.MakerNote: description.encode('utf-8'),
-                    piexif.ExifIFD.UserComment: description.encode('utf-8'),
-                }
-            }
 
             # Convert dict to bytes
-            exif_bytes = piexif.dump(exif_dict)
-
+            exif_bytes = piexif.dump(set_img_exif_dict())
 
             # exif_bytes = piexif.dump({
             #     "Exif": { piexif.ExifIFD.UserComment: piexif.helper.UserComment.dump(parameters or "", encoding="unicode") }
@@ -588,6 +593,15 @@ class Api:
         reqDict = setUpscalers(req)
 
         reqDict['image'] = decode_to_image(reqDict['image'])
+
+        global user_input_data
+        user_input_data = {}
+        if "user_input" in reqDict.alwayson_scripts:
+            user_input_data = reqDict.alwayson_scripts["user_input"]
+            reqDict.alwayson_scripts.pop("user_input")
+
+        if 'alwayson_scripts' in reqDict:
+            reqDict.pop('alwayson_scripts', None)
 
         with self.queue_lock:
             result = postprocessing.run_extras(extras_mode=0, image_folder="", input_dir="", output_dir="", save_output=False, **reqDict)
@@ -1006,9 +1020,12 @@ class Api:
                     # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} finished response.images = self.post_invocations(response.images, quality)")
                     response.parameters.clear()
                     oldinfo = json.loads(response.info)
-                    oldinfo.pop("all_prompts", None)
-                    oldinfo.pop("all_negative_prompts", None)
-                    oldinfo.pop("infotexts", None)
+                    if "all_prompts" in oldinfo:
+                        oldinfo.pop("all_prompts", None)
+                    if "all_negative_prompts" in oldinfo:
+                        oldinfo.pop("all_negative_prompts", None)
+                    if "infotexts" in oldinfo:
+                        oldinfo.pop("infotexts", None)
                     # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} finished oldinfo.pop")
                     response.info = json.dumps(oldinfo)
 
@@ -1023,9 +1040,12 @@ class Api:
                     response.images = self.post_invocations(response.images, quality)
                     response.parameters.clear()
                     oldinfo = json.loads(response.info)
-                    oldinfo.pop("all_prompts", None)
-                    oldinfo.pop("all_negative_prompts", None)
-                    oldinfo.pop("infotexts", None)
+                    if "all_prompts" in oldinfo:
+                        oldinfo.pop("all_prompts", None)
+                    if "all_negative_prompts" in oldinfo:
+                        oldinfo.pop("all_negative_prompts", None)
+                    if "infotexts" in oldinfo:
+                        oldinfo.pop("infotexts", None)
                     response.info = json.dumps(oldinfo)
                     # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} ### get_cmd_flags is {self.get_cmd_flags()}")
                     return response
@@ -1042,15 +1062,26 @@ class Api:
                     response.image = self.post_invocations([response.image], quality)[0]
                     response.parameters.clear()
                     oldinfo = json.loads(response.info)
-                    oldinfo.pop("all_prompts", None)
-                    oldinfo.pop("all_negative_prompts", None)
-                    oldinfo.pop("infotexts", None)
+                    if "all_prompts" in oldinfo:
+                        oldinfo.pop("all_prompts", None)
+                    if "all_negative_prompts" in oldinfo:
+                        oldinfo.pop("all_negative_prompts", None)
+                    if "infotexts" in oldinfo:
+                        oldinfo.pop("infotexts", None)
                     response.info = json.dumps(oldinfo)
                     # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} ### get_cmd_flags is {self.get_cmd_flags()}")
                     return response
                 elif req.task == 'extras-single-image':
                     response = self.extras_single_image_api(req.extras_single_payload)
-                    response.image = self.post_invocations([response.image], quality)[0]                                        
+                    response.image = self.post_invocations([response.image], quality)[0]
+                    oldinfo = json.loads(response.info)
+                    if "all_prompts" in oldinfo:
+                        oldinfo.pop("all_prompts", None)
+                    if "all_negative_prompts" in oldinfo:
+                        oldinfo.pop("all_negative_prompts", None)
+                    if "infotexts" in oldinfo:
+                        oldinfo.pop("infotexts", None)
+                    response.info = json.dumps(oldinfo)
                     return response
                 elif req.task == 'extras-batch-images':
                     response = self.extras_batch_images_api(req.extras_batch_payload)
