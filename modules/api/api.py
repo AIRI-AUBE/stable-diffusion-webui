@@ -1076,14 +1076,15 @@ class Api:
                 elif req.task == 'extras-single-image':
                     response = self.extras_single_image_api(req.extras_single_payload)
                     response.image = self.post_invocations([response.image], quality)[0]
-                    oldinfo = json.loads(response.info)
-                    if "all_prompts" in oldinfo:
-                        oldinfo.pop("all_prompts", None)
-                    if "all_negative_prompts" in oldinfo:
-                        oldinfo.pop("all_negative_prompts", None)
-                    if "infotexts" in oldinfo:
-                        oldinfo.pop("infotexts", None)
-                    response.info = json.dumps(oldinfo)
+                    if "info" in response: 
+                        oldinfo = json.loads(response.info)
+                        if "all_prompts" in oldinfo:
+                            oldinfo.pop("all_prompts", None)
+                        if "all_negative_prompts" in oldinfo:
+                            oldinfo.pop("all_negative_prompts", None)
+                        if "infotexts" in oldinfo:
+                            oldinfo.pop("infotexts", None)
+                        response.info = json.dumps(oldinfo)
                     return response
                 elif req.task == 'extras-batch-images':
                     response = self.extras_batch_images_api(req.extras_batch_payload)
