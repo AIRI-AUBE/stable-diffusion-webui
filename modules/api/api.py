@@ -608,8 +608,7 @@ class Api:
         with self.queue_lock:
             result = postprocessing.run_extras(extras_mode=0, image_folder="", input_dir="", output_dir="", save_output=False, **reqDict)
 
-        # return models.ExtrasSingleImageResponse(image=encode_pil_to_base64(result[0][0]), html_info=result[1])
-        return models.ExtrasSingleImageResponse(image=encode_pil_to_base64(result[0][0]), info=result[1])
+        return models.ExtrasSingleImageResponse(image=encode_pil_to_base64(result[0][0]), html_info=result[1])
 
     def extras_batch_images_api(self, req: models.ExtrasBatchImagesRequest):
         reqDict = setUpscalers(req)
@@ -620,8 +619,7 @@ class Api:
         with self.queue_lock:
             result = postprocessing.run_extras(extras_mode=1, image_folder=image_folder, image="", input_dir="", output_dir="", save_output=False, **reqDict)
 
-        # return models.ExtrasBatchImagesResponse(images=list(map(encode_pil_to_base64, result[0])), html_info=result[1])
-        return models.ExtrasBatchImagesResponse(images=list(map(encode_pil_to_base64, result[0])), info=result[1])
+        return models.ExtrasBatchImagesResponse(images=list(map(encode_pil_to_base64, result[0])), html_info=result[1])
 
     def pnginfoapi(self, req: models.PNGInfoRequest):
         if(not req.image.strip()):
