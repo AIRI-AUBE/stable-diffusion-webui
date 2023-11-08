@@ -971,8 +971,6 @@ class Api:
             global user_input_data
             user_input_data = {}
 
-            print(
-                f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} extras_single_image_api reqDict is {reqDict}")
             if 'alwayson_scripts' in reqDict:
                 if "user_input" in reqDict.alwayson_scripts:
                     user_input_data = reqDict.alwayson_scripts["user_input"]
@@ -981,6 +979,8 @@ class Api:
             if "user_input" in reqDict:
                 user_input_data = reqDict["user_input"]
                 reqDict.pop('user_input', None)
+
+            print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} user_input processed in invocations")
 
             try:
                 if req.vae != None:
