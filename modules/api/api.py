@@ -591,7 +591,7 @@ class Api:
         return models.ImageToImageResponse(images=b64images, parameters=vars(populate), info=processed.js())
 
     def extras_single_image_api(self, req: models.ExtrasSingleImageRequest):
-        print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} extras_single_image_api req is {req}")
+        # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} extras_single_image_api req is {req}")
 
         reqDict = setUpscalers(req)
 
@@ -968,6 +968,7 @@ class Api:
             except Exception as e:
                 print("console Log ran into issue: ", e)
 
+            print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} req in invocations: {req}")
             global user_input_data
             user_input_data = {}
 
@@ -978,9 +979,10 @@ class Api:
 
             if "user_input" in req:
                 user_input_data = req["user_input"]
+                print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} user_input processed in invocations")
                 req.pop('user_input', None)
 
-            print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} user_input processed in invocations")
+
 
             try:
                 if req.vae != None:
