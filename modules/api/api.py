@@ -977,10 +977,10 @@ class Api:
             #         user_input_data = req.alwayson_scripts["user_input"]
             #         req.alwayson_scripts.pop("user_input")
 
-            if "user_input" in req:
-                user_input_data = req["user_input"]
+            if req.user_input != None:
+                user_input_data = req.user_input
                 print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} user_input processed in invocations")
-                req.pop('user_input', None)
+                # req.pop('user_input', None)
 
 
 
