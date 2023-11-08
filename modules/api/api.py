@@ -971,14 +971,14 @@ class Api:
             global user_input_data
             user_input_data = {}
 
-            if 'alwayson_scripts' in reqDict:
-                if "user_input" in reqDict.alwayson_scripts:
-                    user_input_data = reqDict.alwayson_scripts["user_input"]
-                    reqDict.alwayson_scripts.pop("user_input")
+            # if 'alwayson_scripts' in req:
+            #     if "user_input" in req.alwayson_scripts:
+            #         user_input_data = req.alwayson_scripts["user_input"]
+            #         req.alwayson_scripts.pop("user_input")
 
-            if "user_input" in reqDict:
-                user_input_data = reqDict["user_input"]
-                reqDict.pop('user_input', None)
+            if "user_input" in req:
+                user_input_data = req["user_input"]
+                req.pop('user_input', None)
 
             print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} user_input processed in invocations")
 
