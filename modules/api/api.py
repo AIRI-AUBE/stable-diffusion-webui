@@ -180,7 +180,7 @@ def set_img_exif_dict():
             # piexif.ImageIFD.ImageID: imageid.encode('utf-8'),
             # piexif.ImageIFD.ImageNumber: imagenum.encode('utf-8'),
             piexif.ImageIFD.ImageHistory: keywords.encode('utf-8'),
-            piexif.ImageIFD.ImageResources: description.encode('utf-8'),
+            # piexif.ImageIFD.ImageResources: description.encode('utf-8'),
             # piexif.ImageIFD.Noise: seed.encode('utf-8'),
             piexif.ImageIFD.Predictor: camera_model.encode('utf-8'),
             piexif.ImageIFD.OriginalRawFileData: keywords.encode('utf-8'),
@@ -207,6 +207,7 @@ def set_img_exif_dict():
             piexif.ExifIFD.LensModel: camera_model.encode('utf-8'),
             piexif.ExifIFD.MakerNote: description.encode('utf-8'),
             piexif.ExifIFD.UserComment: description.encode('utf-8'),
+
         }
     }
 
@@ -590,12 +591,16 @@ class Api:
         return models.ImageToImageResponse(images=b64images, parameters=vars(populate), info=processed.js())
 
     def extras_single_image_api(self, req: models.ExtrasSingleImageRequest):
+        print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} extras_single_image_api req is {req}")
+
         reqDict = setUpscalers(req)
 
         reqDict['image'] = decode_to_image(reqDict['image'])
 
         global user_input_data
         user_input_data = {}
+
+        print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} extras_single_image_api reqDict is {reqDict}")
         if 'alwayson_scripts' in reqDict:
             if "user_input" in reqDict.alwayson_scripts:
                 user_input_data = reqDict.alwayson_scripts["user_input"]
