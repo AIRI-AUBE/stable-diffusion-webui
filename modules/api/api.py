@@ -597,19 +597,6 @@ class Api:
 
         reqDict['image'] = decode_to_image(reqDict['image'])
 
-        global user_input_data
-        user_input_data = {}
-
-        print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} extras_single_image_api reqDict is {reqDict}")
-        if 'alwayson_scripts' in reqDict:
-            if "user_input" in reqDict.alwayson_scripts:
-                user_input_data = reqDict.alwayson_scripts["user_input"]
-                reqDict.alwayson_scripts.pop("user_input")
-
-        if "user_input" in reqDict:
-            user_input_data = reqDict["user_input"]
-            reqDict.pop('user_input', None)
-
         with self.queue_lock:
             result = postprocessing.run_extras(extras_mode=0, image_folder="", input_dir="", output_dir="", save_output=False, **reqDict)
 
@@ -980,6 +967,20 @@ class Api:
                 self.req_logging(req)
             except Exception as e:
                 print("console Log ran into issue: ", e)
+
+            global user_input_data
+            user_input_data = {}
+
+            print(
+                f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} extras_single_image_api reqDict is {reqDict}")
+            if 'alwayson_scripts' in reqDict:
+                if "user_input" in reqDict.alwayson_scripts:
+                    user_input_data = reqDict.alwayson_scripts["user_input"]
+                    reqDict.alwayson_scripts.pop("user_input")
+
+            if "user_input" in reqDict:
+                user_input_data = reqDict["user_input"]
+                reqDict.pop('user_input', None)
 
             try:
                 if req.vae != None:
