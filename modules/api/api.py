@@ -968,7 +968,7 @@ class Api:
             except Exception as e:
                 print("console Log ran into issue: ", e)
 
-            print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} req in invocations: {req}")
+            # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} req in invocations: {req}")
             global user_input_data
             user_input_data = {}
 
@@ -979,7 +979,7 @@ class Api:
 
             if req.user_input != None:
                 user_input_data = req.user_input
-                print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} user_input processed in invocations")
+                # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} user_input processed in invocations")
                 # req.pop('user_input', None)
 
 
@@ -1010,7 +1010,7 @@ class Api:
                     options = json.loads(req.options)
                     for key in options:
                         shared.opts.data[key] = options[key]
-                    print(shared.opts.data)
+                    # print(shared.opts.data)
 
                 # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} ### shared.opts.data is {shared.opts.data}")
                 #
