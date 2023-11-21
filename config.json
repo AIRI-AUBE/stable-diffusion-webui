@@ -2,7 +2,7 @@
     "samples_format": "jpeg",
     "control_net_model_config": "models/cldm_v21.yaml",
     "control_net_max_models_num": 3,
-    "control_net_model_cache_size": 3,
+    "control_net_model_cache_size": 5,
     "control_net_monocular_depth_optim": true,
     "control_net_cfg_based_guidance": true,
     "control_net_control_transfer": true,
