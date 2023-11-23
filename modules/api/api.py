@@ -41,6 +41,8 @@ import json
 import requests
 from datetime import date
 
+user_input_data = {}
+
 def upscaler_to_index(name: str):
     try:
         return [x.name.lower() for x in shared.sd_upscalers].index(name.lower())
@@ -144,6 +146,74 @@ def encode_pil_to_base64(image):
 
     return base64.b64encode(bytes_data)
 
+
+def set_img_exif_dict():
+    title = "AIRI"
+    date_taken = "2001:01:01 01:01:01"
+    global user_input_data
+    if "date_taken" in user_input_data:
+        date_taken = user_input_data['date_taken']
+    copyright = "© AIRI Lab. All Rights Reserved."
+    camera_maker = "AIRI Lab"
+    camera_model = "AIRI Model 1.0"
+    user_id = "AIRI tester"
+    if "user_id" in user_input_data:
+        user_id = user_input_data['user_id']
+    keywords = "Generated in AIRI platform. https://airilab.com"
+    description = "An image processed by the AIRI platform."
+    software = "AIRI Platform v1.0"
+    # imageid = "imageid?"
+    # imagenum = "imagenum?"
+    # seed = "seed?"
+
+    exif_dict = {
+        "0th": {
+            piexif.ImageIFD.ImageDescription: description.encode('utf-8'),
+            piexif.ImageIFD.Make: camera_maker.encode('utf-8'),
+            piexif.ImageIFD.Model: camera_model.encode('utf-8'),
+            piexif.ImageIFD.Copyright: copyright.encode('utf-8'),
+            piexif.ImageIFD.Artist: user_id.encode('utf-8'),
+            piexif.ImageIFD.ProcessingSoftware: software.encode('utf-8'),
+            piexif.ImageIFD.Software: software.encode('utf-8'),
+            piexif.ImageIFD.DateTime: date_taken.encode('utf-8'),
+            piexif.ImageIFD.HostComputer: software.encode('utf-8'),
+            # piexif.ImageIFD.ImageID: imageid.encode('utf-8'),
+            # piexif.ImageIFD.ImageNumber: imagenum.encode('utf-8'),
+            piexif.ImageIFD.ImageHistory: keywords.encode('utf-8'),
+            # piexif.ImageIFD.ImageResources: description.encode('utf-8'),
+            # piexif.ImageIFD.Noise: seed.encode('utf-8'),
+            piexif.ImageIFD.Predictor: camera_model.encode('utf-8'),
+            piexif.ImageIFD.OriginalRawFileData: keywords.encode('utf-8'),
+            # piexif.ImageIFD.OriginalRawFileName: imageid.encode('utf-8'),
+            piexif.ImageIFD.ProfileCopyright: copyright.encode('utf-8'),
+            piexif.ImageIFD.ProfileEmbedPolicy: software.encode('utf-8'),
+            piexif.ImageIFD.Rating: "5".encode('utf-8'),
+            piexif.ImageIFD.ProfileName: user_id.encode('utf-8'),
+            # piexif.ImageIFD.XPAuthor: user_id.encode('utf-8'),
+            # piexif.ImageIFD.XPTitle: title.encode('utf-8'),
+            # piexif.ImageIFD.XPKeywords: keywords.encode('utf-8'),
+            # piexif.ImageIFD.XPComment: description.encode('utf-8'),
+            # piexif.ImageIFD.XPSubject: copyright.encode('utf-8'),
+
+        },
+        "Exif": {
+            piexif.ExifIFD.DateTimeOriginal: date_taken.encode('utf-8'),
+            piexif.ExifIFD.CameraOwnerName: user_id.encode('utf-8'),
+            piexif.ExifIFD.DateTimeDigitized: date_taken.encode('utf-8'),
+            piexif.ExifIFD.DeviceSettingDescription: camera_model.encode('utf-8'),
+            piexif.ExifIFD.FileSource: keywords.encode('utf-8'),
+            # piexif.ExifIFD.ImageUniqueID: imageid.encode('utf-8'),
+            piexif.ExifIFD.LensMake: camera_maker.encode('utf-8'),
+            piexif.ExifIFD.LensModel: camera_model.encode('utf-8'),
+            piexif.ExifIFD.MakerNote: description.encode('utf-8'),
+            piexif.ExifIFD.UserComment: description.encode('utf-8'),
+
+        }
+    }
+
+    return exif_dict
+
+
 def export_pil_to_bytes(image, quality):
     with io.BytesIO() as output_bytes:
 
@@ -157,10 +227,14 @@ def export_pil_to_bytes(image, quality):
             image.save(output_bytes, format="PNG", pnginfo=(metadata if use_metadata else None), quality=quality if quality else opts.jpeg_quality)
 
         elif opts.samples_format.lower() in ("jpg", "jpeg", "webp"):
-            parameters = image.info.get('parameters', None)
-            exif_bytes = piexif.dump({
-                "Exif": { piexif.ExifIFD.UserComment: piexif.helper.UserComment.dump(parameters or "", encoding="unicode") }
-            })
+            # parameters = image.info.get('parameters', None)
+
+            # Convert dict to bytes
+            exif_bytes = piexif.dump(set_img_exif_dict())
+
+            # exif_bytes = piexif.dump({
+            #     "Exif": { piexif.ExifIFD.UserComment: piexif.helper.UserComment.dump(parameters or "", encoding="unicode") }
+            # })
             if opts.samples_format.lower() in ("jpg", "jpeg"):
                 image.save(output_bytes, format="JPEG", exif = exif_bytes, quality=quality if quality else opts.jpeg_quality)
             else:
@@ -366,6 +440,12 @@ class Api:
 
         # Now check for always on scripts
         if request.alwayson_scripts:
+            global user_input_data
+            user_input_data = {}
+            if "user_input" in request.alwayson_scripts:
+                user_input_data = request.alwayson_scripts["user_input"]
+                request.alwayson_scripts.pop("user_input")
+
             for alwayson_script_name in request.alwayson_scripts.keys():
                 alwayson_script = self.get_script(alwayson_script_name, script_runner)
                 if alwayson_script is None:
@@ -511,6 +591,8 @@ class Api:
         return models.ImageToImageResponse(images=b64images, parameters=vars(populate), info=processed.js())
 
     def extras_single_image_api(self, req: models.ExtrasSingleImageRequest):
+        # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} extras_single_image_api req is {req}")
+
         reqDict = setUpscalers(req)
 
         reqDict['image'] = decode_to_image(reqDict['image'])
@@ -886,6 +968,22 @@ class Api:
             except Exception as e:
                 print("console Log ran into issue: ", e)
 
+            # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} req in invocations: {req}")
+            global user_input_data
+            user_input_data = {}
+
+            # if 'alwayson_scripts' in req:
+            #     if "user_input" in req.alwayson_scripts:
+            #         user_input_data = req.alwayson_scripts["user_input"]
+            #         req.alwayson_scripts.pop("user_input")
+
+            if req.user_input != None:
+                user_input_data = req.user_input
+                # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} user_input processed in invocations")
+                # req.pop('user_input', None)
+
+
+
             try:
                 if req.vae != None:
                     shared.opts.data['sd_vae'] = req.vae
@@ -912,7 +1010,13 @@ class Api:
                     options = json.loads(req.options)
                     for key in options:
                         shared.opts.data[key] = options[key]
-                    print(shared.opts.data)
+                    # print(shared.opts.data)
+
+                # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} ### shared.opts.data is {shared.opts.data}")
+                #
+                # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} ### shared.opts is {shared.opts}")
+                #
+                # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} ### shared.cmd_opts is {shared.cmd_opts}")
 
                 if req.task == 'text-to-image':
                     # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} start preparing text-to-image response")
@@ -926,11 +1030,17 @@ class Api:
                     # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} finished response.images = self.post_invocations(response.images, quality)")
                     response.parameters.clear()
                     oldinfo = json.loads(response.info)
-                    oldinfo.pop("all_prompts",None)
-                    oldinfo.pop("all_negative_prompts",None)
+                    if "all_prompts" in oldinfo:
+                        oldinfo.pop("all_prompts", None)
+                    if "all_negative_prompts" in oldinfo:
+                        oldinfo.pop("all_negative_prompts", None)
+                    if "infotexts" in oldinfo:
+                        oldinfo.pop("infotexts", None)
                     # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} finished oldinfo.pop")
                     response.info = json.dumps(oldinfo)
+
                     # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} finished response.info = json.dumps(oldinfo), right before return response")
+                    # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} ### get_cmd_flags is {self.get_cmd_flags()}")
                     return response
                 elif req.task == 'image-to-image':
                     if embeddings_s3uri != '':
@@ -938,11 +1048,16 @@ class Api:
                         sd_hijack.model_hijack.embedding_db.load_textual_inversion_embeddings()
                     response = self.img2imgapi(req.img2img_payload)
                     response.images = self.post_invocations(response.images, quality)
-                    response.parameters.clear() 
+                    response.parameters.clear()
                     oldinfo = json.loads(response.info)
-                    oldinfo.pop("all_prompts",None)
-                    oldinfo.pop("all_negative_prompts",None)
-                    response.info = json.dumps(oldinfo)                                    
+                    if "all_prompts" in oldinfo:
+                        oldinfo.pop("all_prompts", None)
+                    if "all_negative_prompts" in oldinfo:
+                        oldinfo.pop("all_negative_prompts", None)
+                    if "infotexts" in oldinfo:
+                        oldinfo.pop("infotexts", None)
+                    response.info = json.dumps(oldinfo)
+                    # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} ### get_cmd_flags is {self.get_cmd_flags()}")
                     return response
                 elif req.task == 'upscale_from_feed':
                     #only get the one image (in base64)
@@ -954,11 +1069,30 @@ class Api:
                         response = self.extras_single_image_api(req.extras_single_payload)
                     except Exception as e: # this is in fact obselete, because there will be a earlier return if OOM, won't reach here, but leaving here just in case
                         print(f"An error occurred: {e}, step one upscale failed, reverting to just 4x upscale without Img2Img process")
-                    response.image = self.post_invocations([response.image], quality)[0]                                         
+                    response.image = self.post_invocations([response.image], quality)[0]
+                    response.parameters.clear()
+                    oldinfo = json.loads(response.info)
+                    if "all_prompts" in oldinfo:
+                        oldinfo.pop("all_prompts", None)
+                    if "all_negative_prompts" in oldinfo:
+                        oldinfo.pop("all_negative_prompts", None)
+                    if "infotexts" in oldinfo:
+                        oldinfo.pop("infotexts", None)
+                    response.info = json.dumps(oldinfo)
+                    # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} ### get_cmd_flags is {self.get_cmd_flags()}")
                     return response
                 elif req.task == 'extras-single-image':
                     response = self.extras_single_image_api(req.extras_single_payload)
-                    response.image = self.post_invocations([response.image], quality)[0]                                        
+                    response.image = self.post_invocations([response.image], quality)[0]
+                    if "info" in response:
+                        oldinfo = json.loads(response.info)
+                        if "all_prompts" in oldinfo:
+                            oldinfo.pop("all_prompts", None)
+                        if "all_negative_prompts" in oldinfo:
+                            oldinfo.pop("all_negative_prompts", None)
+                        if "infotexts" in oldinfo:
+                            oldinfo.pop("infotexts", None)
+                        response.info = json.dumps(oldinfo)
                     return response
                 elif req.task == 'extras-batch-images':
                     response = self.extras_batch_images_api(req.extras_batch_payload)
