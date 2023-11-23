@@ -320,3 +320,26 @@ class ExtensionItem(BaseModel):
     version: str = Field(title="Version", description="Extension Version")
     commit_date: str = Field(title="Commit Date", description="Extension Repository Commit Date")
     enabled: bool = Field(title="Enabled", description="Flag specifying whether this extension is enabled")
+
+
+class InvocationsRequest(BaseModel):
+    task: str
+    id: Optional[str]
+    model: Optional[str]
+    vae: Optional[str]
+    quality: Optional[int]
+    options: Optional[str]
+    txt2img_payload: Optional[StableDiffusionTxt2ImgProcessingAPI]
+    img2img_payload: Optional[StableDiffusionImg2ImgProcessingAPI]
+    extras_single_payload: Optional[ExtrasSingleImageRequest]
+    extras_batch_payload: Optional[ExtrasBatchImagesRequest]
+    interrogate_payload: Optional[InterrogateRequest]
+    extra_payload: Optional[dict]
+
+
+class InvocationsErrorResponse(BaseModel):
+    error: str = Field(title="Invocation error", description="Error response from invocation.")
+
+
+class PingResponse(BaseModel):
+    status: str
