@@ -992,60 +992,79 @@ class Api:
                 # req.pop('user_input', None)
 
         try:
-                if req.vae != None:
-                    shared.opts.data['sd_vae'] = req.vae
-                    refresh_vae_list()
+            if req.vae != None:
+                shared.opts.data['sd_vae'] = req.vae
+                refresh_vae_list()
 
-                if req.model != None:
-                    sd_model_checkpoint = shared.opts.sd_model_checkpoint
-                    shared.opts.sd_model_checkpoint = req.model
-                    with self.queue_lock:
-                        reload_model_weights()
-                    if sd_model_checkpoint == shared.opts.sd_model_checkpoint:
-                        reload_vae_weights()
+            if req.model != None:
+                sd_model_checkpoint = shared.opts.sd_model_checkpoint
+                shared.opts.sd_model_checkpoint = req.model
+                with self.queue_lock:
+                    reload_model_weights()
+                if sd_model_checkpoint == shared.opts.sd_model_checkpoint:
+                    reload_vae_weights()
 
-                quality = req.quality
+            quality = req.quality
 
-                embeddings_s3uri = shared.cmd_opts.embeddings_s3uri
-                hypernetwork_s3uri = shared.cmd_opts.hypernetwork_s3uri
+            embeddings_s3uri = shared.cmd_opts.embeddings_s3uri
+            hypernetwork_s3uri = shared.cmd_opts.hypernetwork_s3uri
 
-                if hypernetwork_s3uri !='':
-                    shared.s3_download(hypernetwork_s3uri, shared.cmd_opts.hypernetwork_dir)
-                    shared.reload_hypernetworks()
+            if hypernetwork_s3uri !='':
+                shared.s3_download(hypernetwork_s3uri, shared.cmd_opts.hypernetwork_dir)
+                shared.reload_hypernetworks()
 
-                if req.options != None:
-                    options = json.loads(req.options)
-                    for key in options:
-                        shared.opts.data[key] = options[key]
+            if req.options != None:
+                options = json.loads(req.options)
+                for key in options:
+                    shared.opts.data[key] = options[key]
 
-                if req.task == 'text-to-image':
-                    if embeddings_s3uri != '':
-                        response = requests.get('http://0.0.0.0:8080/controlnet/model_list', params={'update': True})
-                        print('Controlnet models: ', response.text)
-
-                        shared.s3_download(embeddings_s3uri, shared.cmd_opts.embeddings_dir)
-                        sd_hijack.model_hijack.embedding_db.load_textual_inversion_embeddings()
-                    response = self.text2imgapi(req.txt2img_payload)
-                    response.images = self.post_invocations(response.images, quality)
-                    response.parameters.clear()
-                    oldinfo = json.loads(response.info)
-                    if "all_prompts" in oldinfo:
-                        oldinfo.pop("all_prompts", None)
-                    if "all_negative_prompts" in oldinfo:
-                        oldinfo.pop("all_negative_prompts", None)
-                    if "infotexts" in oldinfo:
-                        oldinfo.pop("infotexts", None)
-                    response.info = json.dumps(oldinfo)
-                    return response
-                elif req.task == 'image-to-image':
+            if req.task == 'text-to-image':
+                if embeddings_s3uri != '':
                     response = requests.get('http://0.0.0.0:8080/controlnet/model_list', params={'update': True})
                     print('Controlnet models: ', response.text)
 
-                    if embeddings_s3uri != '':
-                        shared.s3_download(embeddings_s3uri, shared.cmd_opts.embeddings_dir)
-                        sd_hijack.model_hijack.embedding_db.load_textual_inversion_embeddings()
-                    response = self.img2imgapi(req.img2img_payload)
-                    response.images = self.post_invocations(response.images, quality)
+                    shared.s3_download(embeddings_s3uri, shared.cmd_opts.embeddings_dir)
+                    sd_hijack.model_hijack.embedding_db.load_textual_inversion_embeddings()
+                response = self.text2imgapi(req.txt2img_payload)
+                response.images = self.post_invocations(response.images, quality)
+                response.parameters.clear()
+                oldinfo = json.loads(response.info)
+                if "all_prompts" in oldinfo:
+                    oldinfo.pop("all_prompts", None)
+                if "all_negative_prompts" in oldinfo:
+                    oldinfo.pop("all_negative_prompts", None)
+                if "infotexts" in oldinfo:
+                    oldinfo.pop("infotexts", None)
+                response.info = json.dumps(oldinfo)
+                return response
+            elif req.task == 'image-to-image':
+                response = requests.get('http://0.0.0.0:8080/controlnet/model_list', params={'update': True})
+                print('Controlnet models: ', response.text)
+
+                if embeddings_s3uri != '':
+                    shared.s3_download(embeddings_s3uri, shared.cmd_opts.embeddings_dir)
+                    sd_hijack.model_hijack.embedding_db.load_textual_inversion_embeddings()
+                response = self.img2imgapi(req.img2img_payload)
+                response.images = self.post_invocations(response.images, quality)
+                response.parameters.clear()
+                oldinfo = json.loads(response.info)
+                if "all_prompts" in oldinfo:
+                    oldinfo.pop("all_prompts", None)
+                if "all_negative_prompts" in oldinfo:
+                    oldinfo.pop("all_negative_prompts", None)
+                if "infotexts" in oldinfo:
+                    oldinfo.pop("infotexts", None)
+                response.info = json.dumps(oldinfo)
+                return response
+            elif req.task == 'upscale_from_feed':
+                # only get the one image (in base64)
+                intermediate_image = self.img2imgapi(req.img2img_payload).images
+                print('finished intermediate img2img')
+                try:
+                    # update the base64 image # note might need to change to req.extras_single_payload['image'] if this does not work
+                    req.extras_single_payload.image = intermediate_image[0]
+                    response = self.extras_single_image_api(req.extras_single_payload)
+                    response.image = self.post_invocations([response.image], quality)[0]
                     response.parameters.clear()
                     oldinfo = json.loads(response.info)
                     if "all_prompts" in oldinfo:
@@ -1055,89 +1074,70 @@ class Api:
                     if "infotexts" in oldinfo:
                         oldinfo.pop("infotexts", None)
                     response.info = json.dumps(oldinfo)
+                    # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} ### get_cmd_flags is {self.get_cmd_flags()}")
                     return response
-                elif req.task == 'upscale_from_feed':
-                    # only get the one image (in base64)
-                    intermediate_image = self.img2imgapi(req.img2img_payload).images
-                    print('finished intermediate img2img')
-                    try:
-                        # update the base64 image # note might need to change to req.extras_single_payload['image'] if this does not work
-                        req.extras_single_payload.image = intermediate_image[0]
-                        response = self.extras_single_image_api(req.extras_single_payload)
-                        response.image = self.post_invocations([response.image], quality)[0]
-                        response.parameters.clear()
-                        oldinfo = json.loads(response.info)
-                        if "all_prompts" in oldinfo:
-                            oldinfo.pop("all_prompts", None)
-                        if "all_negative_prompts" in oldinfo:
-                            oldinfo.pop("all_negative_prompts", None)
-                        if "infotexts" in oldinfo:
-                            oldinfo.pop("infotexts", None)
-                        response.info = json.dumps(oldinfo)
-                        # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} ### get_cmd_flags is {self.get_cmd_flags()}")
-                        return response
-                    except Exception as e:  # this is in fact obselete, because there will be a earlier return if OOM, won't reach here, but leaving here just in case
-                        print(
-                            f"An error occurred: {e}, step one upscale failed, reverting to just 4x upscale without Img2Img process")
-                elif req.task == 'extras-single-image':
-                    response = self.extras_single_image_api(req.extras_single_payload)
-                    response.image = self.post_invocations([response.image], quality)[0]
-                    if "info" in response:
-                        oldinfo = json.loads(response.info)
-                        if "all_prompts" in oldinfo:
-                            oldinfo.pop("all_prompts", None)
-                        if "all_negative_prompts" in oldinfo:
-                            oldinfo.pop("all_negative_prompts", None)
-                        if "infotexts" in oldinfo:
-                            oldinfo.pop("infotexts", None)
-                        response.info = json.dumps(oldinfo)
-                    return response
-                elif req.task == 'extras-batch-images':
-                    response = self.extras_batch_images_api(req.extras_batch_payload)
-                    response.images = self.post_invocations(response.images, quality)
-                    return response
-                elif req.task == 'interrogate':
-                    response = self.interrogateapi(req.interrogate_payload)
-                    return response
+                except Exception as e:  # this is in fact obselete, because there will be a earlier return if OOM, won't reach here, but leaving here just in case
+                    print(
+                        f"An error occurred: {e}, step one upscale failed, reverting to just 4x upscale without Img2Img process")
+            elif req.task == 'extras-single-image':
+                response = self.extras_single_image_api(req.extras_single_payload)
+                response.image = self.post_invocations([response.image], quality)[0]
+                if "info" in response:
+                    oldinfo = json.loads(response.info)
+                    if "all_prompts" in oldinfo:
+                        oldinfo.pop("all_prompts", None)
+                    if "all_negative_prompts" in oldinfo:
+                        oldinfo.pop("all_negative_prompts", None)
+                    if "infotexts" in oldinfo:
+                        oldinfo.pop("infotexts", None)
+                    response.info = json.dumps(oldinfo)
+                return response
+            elif req.task == 'extras-batch-images':
+                response = self.extras_batch_images_api(req.extras_batch_payload)
+                response.images = self.post_invocations(response.images, quality)
+                return response
+            elif req.task == 'interrogate':
+                response = self.interrogateapi(req.interrogate_payload)
+                return response
 
-                elif req.task == 'get-progress':
-                    response = self.progressapi(req.progress_payload)
-                    print(response)
-                    return response
-                elif req.task == 'get-options':
-                    response = self.get_config()
-                    return response
-                elif req.task == 'get-SDmodels':
-                    response = self.get_sd_models()
-                    return response
-                elif req.task == 'get-upscalers':
-                    response = self.get_upscalers()
-                    return response
-                elif req.task == 'get-memory':
-                    response = self.get_memory()
-                    return response
-                elif req.task == 'get-cmd-flags':
-                    response = self.get_cmd_flags()
-                    return response
-                elif req.task == 'do-nothing':
-                    print("nothing has happened")
-                    return "nothing has happened"
+            elif req.task == 'get-progress':
+                response = self.progressapi(req.progress_payload)
+                print(response)
+                return response
+            elif req.task == 'get-options':
+                response = self.get_config()
+                return response
+            elif req.task == 'get-SDmodels':
+                response = self.get_sd_models()
+                return response
+            elif req.task == 'get-upscalers':
+                response = self.get_upscalers()
+                return response
+            elif req.task == 'get-memory':
+                response = self.get_memory()
+                return response
+            elif req.task == 'get-cmd-flags':
+                response = self.get_cmd_flags()
+                return response
+            elif req.task == 'do-nothing':
+                print("nothing has happened")
+                return "nothing has happened"
 
-                elif req.task.startswith('/'):
-                    if req.extra_payload:
-                        response = requests.post(url=f'http://0.0.0.0:8080{req.task}', json=req.extra_payload)
-                    else:
-                        response = requests.get(url=f'http://0.0.0.0:8080{req.task}')
-                    if response.status_code == 200:
-                        return json.loads(response.text)
-                    else:
-                        raise HTTPException(status_code=response.status_code, detail=response.text)
+            elif req.task.startswith('/'):
+                if req.extra_payload:
+                    response = requests.post(url=f'http://0.0.0.0:8080{req.task}', json=req.extra_payload)
                 else:
-                    return models.InvocationsErrorResponse(error = f'Invalid task - {req.task}')
+                    response = requests.get(url=f'http://0.0.0.0:8080{req.task}')
+                if response.status_code == 200:
+                    return json.loads(response.text)
+                else:
+                    raise HTTPException(status_code=response.status_code, detail=response.text)
+            else:
+                return models.InvocationsErrorResponse(error = f'Invalid task - {req.task}')
 
-            except Exception as e:
-                traceback.print_exc()
-                return models.InvocationsErrorResponse(error = str(e))
+        except Exception as e:
+            traceback.print_exc()
+            return models.InvocationsErrorResponse(error = str(e))
 
     def ping(self):
         return {'status': 'Healthy'}
