@@ -49,11 +49,11 @@ jobs:
           2>&1 | tee output.txt &
       - name: Run tests
         run: |
-          wait-for-it --service 127.0.0.1:7860 -t 600
+          wait-for-it --service 127.0.0.1:8080 -t 600
           python -m pytest -vv --junitxml=test/results.xml --cov . --cov-report=xml --verify-base-url test
       - name: Kill test server
         if: always()
-        run: curl -vv -XPOST http://127.0.0.1:7860/sdapi/v1/server-stop && sleep 10
+        run: curl -vv -XPOST http://127.0.0.1:8080/sdapi/v1/server-stop && sleep 10
       - name: Show coverage
         run: |
           python -m coverage combine .coverage*
