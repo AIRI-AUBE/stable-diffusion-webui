@@ -529,7 +529,7 @@ class Api:
 
         mask = img2imgreq.mask
         if mask:
-            mask = decode_base64_to_image(mask)
+            mask = decode_to_image(mask)
 
         script_runner = scripts.scripts_img2img
         if not script_runner.scripts:
@@ -561,7 +561,7 @@ class Api:
 
         with self.queue_lock:
             with closing(StableDiffusionProcessingImg2Img(sd_model=shared.sd_model, **args)) as p:
-                p.init_images = [decode_base64_to_image(x) for x in init_images]
+                p.init_images = [decode_to_image(x) for x in init_images]
                 p.is_api = True
                 p.scripts = script_runner
                 p.outpath_grids = opts.outdir_img2img_grids
@@ -590,7 +590,7 @@ class Api:
     def extras_single_image_api(self, req: models.ExtrasSingleImageRequest):
         reqDict = setUpscalers(req)
 
-        reqDict['image'] = decode_base64_to_image(reqDict['image'])
+        reqDict['image'] = decode_to_image(reqDict['image'])
 
         with self.queue_lock:
             result = postprocessing.run_extras(extras_mode=0, image_folder="", input_dir="", output_dir="", save_output=False, **reqDict)
@@ -601,7 +601,7 @@ class Api:
         reqDict = setUpscalers(req)
 
         image_list = reqDict.pop('imageList', [])
-        image_folder = [decode_base64_to_image(x.data) for x in image_list]
+        image_folder = [decode_to_image(x.data) for x in image_list]
 
         with self.queue_lock:
             result = postprocessing.run_extras(extras_mode=1, image_folder=image_folder, image="", input_dir="", output_dir="", save_output=False, **reqDict)
