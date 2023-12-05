@@ -23,7 +23,16 @@ prepare_environment = launch_utils.prepare_environment
 configure_for_tests = launch_utils.configure_for_tests
 start = launch_utils.start
 
-
+def debug():
+    import os
+    if os.path.isdir('/opt/ml/code/models/ESRGAN'):
+        print(f"/opt/ml/code/models/ESRGAN exists, contains:")
+        files = os.listdir('/opt/ml/code/models/ESRGAN')
+        for file in files:
+            print(file)
+    else:
+        print(f"/opt/ml/code/models/ESRGAN doesn't exists")
+        print(f"Curently at: {os.getcwd()}")
 def main():
     if args.dump_sysinfo:
         filename = launch_utils.dump_sysinfo()
