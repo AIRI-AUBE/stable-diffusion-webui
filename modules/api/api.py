@@ -133,7 +133,8 @@ def decode_base64_to_image(encoding):
 user_input_data = {}
 
 
-def set_img_exif_dict():
+def set_img_exif_dict(image_id="img_id_1"):
+    # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} ***&&& set_img_exif_dict Writing exif")
     title = "AIRI"
     date_taken = "2001:01:01 01:01:01"
     global user_input_data
@@ -145,10 +146,12 @@ def set_img_exif_dict():
     user_id = "AIRI tester"
     if "user_id" in user_input_data:
         user_id = user_input_data['user_id']
-    keywords = "Generated in AIRI platform. https://airilab.com"
-    description = "An image processed by the AIRI platform."
+    generation_id = "gen_id_1"
+    if "generation_id" in user_input_data:
+        generation_id = user_input_data['generation_id']
+    keywords = f"Generated in AIRI platform. https://airilab.com . Generation ID: {generation_id}, Image ID: {image_id}"
+    description = f"An image processed by the AIRI platform. Generation ID: {generation_id}, Image ID: {image_id}"
     software = "AIRI Platform v1.0"
-    # imageid = "imageid?"
     # imagenum = "imagenum?"
     # seed = "seed?"
     exif_dict = {
@@ -193,6 +196,16 @@ def set_img_exif_dict():
             piexif.ExifIFD.UserComment: description.encode('utf-8'),
         }
     }
+
+    # def print_nested_dict(nested_dict, indent=0):
+    #     for key, value in nested_dict.items():
+    #         print('\t' * indent + str(key))
+    #         if isinstance(value, dict):
+    #             print_nested_dict(value, indent + 1)
+    #         else:
+    #             print('\t' * (indent + 1) + str(value))
+
+    # print_nested_dict(exif_dict)
     return exif_dict
 
 
@@ -220,9 +233,11 @@ def encode_pil_to_base64(image):
             exif_bytes = piexif.dump(set_img_exif_dict())
 
             if opts.samples_format.lower() in ("jpg", "jpeg"):
-                image.save(output_bytes, format="JPEG", exif = exif_bytes, quality=opts.jpeg_quality)
+                image.save(output_bytes, format="JPEG", exif=exif_bytes, quality=opts.jpeg_quality)
+                # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} ***&&& encode_pil_to_base64")
+                # print(Image.open(output_bytes).getexif())  # Print the EXIF data
             else:
-                image.save(output_bytes, format="WEBP", exif = exif_bytes, quality=opts.jpeg_quality)
+                image.save(output_bytes, format="WEBP", exif=exif_bytes, quality=opts.jpeg_quality)
 
         else:
             raise HTTPException(status_code=500, detail="Invalid image format")
@@ -231,7 +246,7 @@ def encode_pil_to_base64(image):
 
     return base64.b64encode(bytes_data)
 
-def export_pil_to_bytes(image, quality):
+def export_pil_to_bytes(image, quality, image_id=""):
     with io.BytesIO() as output_bytes:
 
         if opts.samples_format.lower() == 'png':
@@ -244,10 +259,13 @@ def export_pil_to_bytes(image, quality):
             image.save(output_bytes, format="PNG", pnginfo=(metadata if use_metadata else None), quality=quality if quality else opts.jpeg_quality)
 
         elif opts.samples_format.lower() in ("jpg", "jpeg", "webp"):
-            parameters = image.info.get('parameters', None)
-            exif_bytes = piexif.dump({
-                "Exif": { piexif.ExifIFD.UserComment: piexif.helper.UserComment.dump(parameters or "", encoding="unicode") }
-            })
+            # parameters = image.info.get('parameters', None)
+            # exif_bytes = piexif.dump({
+            #     "Exif": { piexif.ExifIFD.UserComment: piexif.helper.UserComment.dump(parameters or "", encoding="unicode") }
+            # })
+            # Convert dict to bytes
+            exif_bytes = piexif.dump(set_img_exif_dict(image_id=image_id))
+
             if opts.samples_format.lower() in ("jpg", "jpeg"):
                 image.save(output_bytes, format="JPEG", exif = exif_bytes, quality=quality if quality else opts.jpeg_quality)
             else:
@@ -932,9 +950,13 @@ class Api:
                 key = key[ : -1]
             images = []
             for b64image in b64images:
-                bytes_data = export_pil_to_bytes(decode_to_image(b64image), quality)
+                # bytes_data = export_pil_to_bytes(decode_to_image(b64image), quality)
                 image_id = datetime.datetime.now().strftime(f"%Y%m%d%H%M%S-{uuid.uuid4()}")
                 suffix = opts.samples_format.lower()
+                bytes_data = export_pil_to_bytes(decode_to_image(b64image), quality, image_id=image_id)
+
+                print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} GenID@{user_input_data['generation_id']} image_id@{image_id}")
+
                 shared.s3_client.put_object(
                     Body=bytes_data,
                     Bucket=bucket,
@@ -973,12 +995,12 @@ class Api:
 
     def invocations(self, req: models.InvocationsRequest):
         with self.invocations_lock:
-            print("\n ----------------------------invocation--------------------------- ")
-            try:
-                print("")
-                self.req_logging(req)
-            except Exception as e:
-                print("console Log ran into issue: ", e)
+            print(f"\n ----------------------------invocation log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} --------------------------- ")
+            # try:
+            #    print("")
+            #    self.req_logging(req)
+            # except Exception as e:
+            #    print("console Log ran into issue: ", e)
             # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} req in invocations: {req}")
             global user_input_data
             user_input_data = {}
@@ -988,8 +1010,27 @@ class Api:
             #         req.alwayson_scripts.pop("user_input")
             if req.user_input != None:
                 user_input_data = req.user_input
+                print(f"\n -----<<<<<<<  UserID@{user_input_data['user_id']}  >>>>>>>----- ")
+                print(f"\n -----<<<<<<<  GenID@{user_input_data['generation_id']}  >>>>>>>----- ")
+                print(f"\n -----<<<<<<<  WFID@{user_input_data['workflow']}  >>>>>>>----- ")
+                print(f"\n Received user_input_data:\n"
+                          f"user_id={user_input_data['user_id']},\n"
+                          f"date_taken={user_input_data['date_taken']},\n"
+                          f"project_id={user_input_data['project_id']},\n"
+                          f"generation_id={user_input_data['generation_id']},\n"
+                          f"workflow={user_input_data['workflow']},\n"
+                          f"design_library_style={user_input_data['design_library_style']},\n"
+                          f"camera={user_input_data['camera']},\n"
+                          f"fidelity_level={user_input_data['fidelity_level']},\n"
+                          f"additional_prompt={user_input_data['additional_prompt']},\n"
+                          f"atmosphere={user_input_data['atmosphere']},\n"
+                          f"img_width={user_input_data['img_width']},\n"
+                          f"img_height={user_input_data['img_height']}\n"
+                      )
                 # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} user_input processed in invocations")
                 # req.pop('user_input', None)
+            else:
+                print(f"\n !!!!!ERROR user_input_data missing!!!!!")
 
         try:
             if req.vae != None:
@@ -1021,7 +1062,7 @@ class Api:
             if req.task == 'text-to-image':
                 if embeddings_s3uri != '':
                     response = requests.get('http://0.0.0.0:8080/controlnet/model_list', params={'update': True})
-                    print('Controlnet models: ', response.text)
+                    # print('Controlnet models: ', response.text)
 
                     shared.s3_download(embeddings_s3uri, shared.cmd_opts.embeddings_dir)
                     sd_hijack.model_hijack.embedding_db.load_textual_inversion_embeddings()
@@ -1039,7 +1080,7 @@ class Api:
                 return response
             elif req.task == 'image-to-image':
                 response = requests.get('http://0.0.0.0:8080/controlnet/model_list', params={'update': True})
-                print('Controlnet models: ', response.text)
+                # print('Controlnet models: ', response.text)
 
                 if embeddings_s3uri != '':
                     shared.s3_download(embeddings_s3uri, shared.cmd_opts.embeddings_dir)
@@ -1059,7 +1100,7 @@ class Api:
             elif req.task == 'upscale_from_feed':
                 # only get the one image (in base64)
                 intermediate_image = self.img2imgapi(req.img2img_payload).images
-                print('finished intermediate img2img')
+                # print('finished intermediate img2img')
                 try:
                     # update the base64 image # note might need to change to req.extras_single_payload['image'] if this does not work
                     req.extras_single_payload.image = intermediate_image[0]
