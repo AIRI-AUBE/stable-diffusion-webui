@@ -150,38 +150,39 @@ def set_img_exif_dict(image_id="img_id_1"):
     if "generation_id" in user_input_data:
         generation_id = user_input_data['generation_id']
     keywords = f"Generated in AIRI platform. https://airilab.com . Generation ID: {generation_id}, Image ID: {image_id}"
+    title = f"{user_id}_https://airilab.com_{image_id}" #####
     description = f"An image processed by the AIRI platform. Generation ID: {generation_id}, Image ID: {image_id}"
     software = "AIRI Platform v1.0"
     # imagenum = "imagenum?"
     # seed = "seed?"
     exif_dict = {
         "0th": {
-            piexif.ImageIFD.ImageDescription: description.encode('utf-8'),
+            piexif.ImageIFD.ImageDescription: title.encode('utf-8'),
             piexif.ImageIFD.Make: camera_maker.encode('utf-8'),
             piexif.ImageIFD.Model: camera_model.encode('utf-8'),
-            piexif.ImageIFD.Copyright: copyright.encode('utf-8'),
+            # piexif.ImageIFD.Copyright: copyright.encode('utf-8'), #decision to remove
             piexif.ImageIFD.Artist: user_id.encode('utf-8'),
             piexif.ImageIFD.ProcessingSoftware: software.encode('utf-8'),
             piexif.ImageIFD.Software: software.encode('utf-8'),
             piexif.ImageIFD.DateTime: date_taken.encode('utf-8'),
             piexif.ImageIFD.HostComputer: software.encode('utf-8'),
-            # piexif.ImageIFD.ImageID: imageid.encode('utf-8'),
-            # piexif.ImageIFD.ImageNumber: imagenum.encode('utf-8'),
+            # piexif.ImageIFD.ImageID: imageid.encode('utf-8'), #bad
+            # piexif.ImageIFD.ImageNumber: imagenum.encode('utf-8'), #bad
             piexif.ImageIFD.ImageHistory: keywords.encode('utf-8'),
-            # piexif.ImageIFD.ImageResources: description.encode('utf-8'),
-            # piexif.ImageIFD.Noise: seed.encode('utf-8'),
+            # piexif.ImageIFD.ImageResources: description.encode('utf-8'),#bad
+            # piexif.ImageIFD.Noise: seed.encode('utf-8'),#bad
             piexif.ImageIFD.Predictor: camera_model.encode('utf-8'),
             piexif.ImageIFD.OriginalRawFileData: keywords.encode('utf-8'),
-            # piexif.ImageIFD.OriginalRawFileName: imageid.encode('utf-8'),
+            # piexif.ImageIFD.OriginalRawFileName: imageid.encode('utf-8'),#bad
             piexif.ImageIFD.ProfileCopyright: copyright.encode('utf-8'),
             piexif.ImageIFD.ProfileEmbedPolicy: software.encode('utf-8'),
             piexif.ImageIFD.Rating: "5".encode('utf-8'),
             piexif.ImageIFD.ProfileName: user_id.encode('utf-8'),
-            # piexif.ImageIFD.XPAuthor: user_id.encode('utf-8'),
-            # piexif.ImageIFD.XPTitle: title.encode('utf-8'),
-            # piexif.ImageIFD.XPKeywords: keywords.encode('utf-8'),
-            # piexif.ImageIFD.XPComment: description.encode('utf-8'),
-            # piexif.ImageIFD.XPSubject: copyright.encode('utf-8'),
+            # piexif.ImageIFD.XPAuthor: user_id.encode('utf-8'),#bad
+            # piexif.ImageIFD.XPTitle: title.encode('utf-8'),#bad
+            # piexif.ImageIFD.XPKeywords: keywords.encode('utf-8'),#bad
+            # piexif.ImageIFD.XPComment: description.encode('utf-8'),#bad
+            # piexif.ImageIFD.XPSubject: copyright.encode('utf-8'),#bad
         },
         "Exif": {
             piexif.ExifIFD.DateTimeOriginal: date_taken.encode('utf-8'),
@@ -189,7 +190,7 @@ def set_img_exif_dict(image_id="img_id_1"):
             piexif.ExifIFD.DateTimeDigitized: date_taken.encode('utf-8'),
             piexif.ExifIFD.DeviceSettingDescription: camera_model.encode('utf-8'),
             piexif.ExifIFD.FileSource: keywords.encode('utf-8'),
-            # piexif.ExifIFD.ImageUniqueID: imageid.encode('utf-8'),
+            # piexif.ExifIFD.ImageUniqueID: imageid.encode('utf-8'),#bad
             piexif.ExifIFD.LensMake: camera_maker.encode('utf-8'),
             piexif.ExifIFD.LensModel: camera_model.encode('utf-8'),
             piexif.ExifIFD.MakerNote: description.encode('utf-8'),
