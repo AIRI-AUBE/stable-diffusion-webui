@@ -105,6 +105,47 @@ def decode_to_image(encoding):
     except Exception as err:
         raise HTTPException(status_code=500, detail="Invalid encoded image")
 
+def mask_decode_to_image(encoding):
+    image = decode_to_image(encoding)
+    print(f"mask_decode_to_image image before {type(image)}")
+    try:
+        # response = requests.get('http://0.0.0.0:8080/sam/sam-model')
+        # print(f'\nsam/sam-model: {response.text}\n')
+        response = requests.get('http://0.0.0.0:8080/sam/heartbeat')
+        print(f'\nsam/heartbeat: {response.text}\n')
+        if "Success" in response.text:
+            # print(f'\nsam/heartbeat: {response.text}\n')
+            image = encode_pil_to_base64(image)
+            print(f"mask_decode_to_image image mid 1 {type(image)}")
+            image = image.decode('utf-8')  # Decode bytes to string
+            print(f"mask_decode_to_image image mid 2 {type(image)}")
+            dilate_value = 16
+            start_time = time.time()
+            response_raw = requests.post('http://0.0.0.0:8080/sam/dilate-mask', json={
+                "input_image": image,
+                "mask": image,
+                "dilate_amount": dilate_value
+            }, timeout=60)
+            response = response_raw.json()
+            print(f"mask_decode_to_image sam dilate-mask response 1 took {time.time() - start_time}s.")
+            if "mask" in response:
+                print(f"mask_decode_to_image response 2 mask image length {len(response['mask'])}")
+                print(f"mask_decode_to_image image mid 3 {type(response['mask'])}")
+                image = decode_base64_to_image(response['mask'])
+                print(f"mask_decode_to_image image after {type(image)}")
+                print(f'SAM successfully dilated mask by {dilate_value}.')
+
+            else:
+                print(f'!!!! Error: SAM did not return a masked_image! response is {response_raw}')
+                raise HTTPException(status_code=500, detail="Error: sam did not return a masked_image!")
+        else:
+            print(f'!!!! Error: SAM heartbeat lost!')
+    except Exception as err:
+        print(f'!!!! Error: SAM exception {err}!!!!')
+        pass
+
+    return image
+
 def decode_base64_to_image(encoding):
     if encoding.startswith("http://") or encoding.startswith("https://"):
         if not opts.api_enable_requests:
@@ -140,44 +181,70 @@ def set_img_exif_dict(image_id="img_id_1"):
     global user_input_data
     if "date_taken" in user_input_data:
         date_taken = user_input_data['date_taken']
-    copyright = "© AIRI Lab. All Rights Reserved."
+    # copyright = "© AIRI Lab. All Rights Reserved." #decision to remove
     camera_maker = "AIRI Lab"
     camera_model = "AIRI Model 1.0"
-    user_id = "AIRI tester"
-    if "user_id" in user_input_data:
-        user_id = user_input_data['user_id']
     generation_id = "gen_id_1"
     if "generation_id" in user_input_data:
         generation_id = user_input_data['generation_id']
-    keywords = f"Generated in AIRI platform. https://airilab.com . Generation ID: {generation_id}, Image ID: {image_id}"
-    title = f"{user_id}_https://airilab.com_{image_id}" #####
-    description = f"An image processed by the AIRI platform. Generation ID: {generation_id}, Image ID: {image_id}"
+
+    user_id = "AIRI tester"
+    if "user_id" in user_input_data:
+        user_id = user_input_data['user_id']
+    oem_id = "gid_1"
+    if "oem_id" in user_input_data:
+        oem_id = user_input_data['oem_id']
+    team_id = "tid_1"
+    if "team_id" in user_input_data:
+        team_id = user_input_data['team_id']
+    project_id = "pid_1"
+    if "project_id" in user_input_data:
+        project_id = user_input_data['project_id']
+
+    user_name = "un_1"
+    if "user_name" in user_input_data:
+        user_name = user_input_data['user_name']
+    oem_name = "on_1"
+    if "oem_name" in user_input_data:
+        oem_name = user_input_data['oem_name']
+    team_name = "tn_1"
+    if "team_name" in user_input_data:
+        team_name = user_input_data['team_name']
+    project_name = "pn_1"
+    if "project_name" in user_input_data:
+        project_name = user_input_data['project_name']
+
+    title_field = f"{oem_id}/{team_id}/{project_id}/{user_id}_airilab.com_{image_id}"
+    artist_field = f"{oem_name}/{team_name}/{project_name}/{user_name}"
+
+    keywords = f"Generated in AIRI platform. airilab.com. Generation ID: {generation_id}, Image ID: {image_id}" # not showing
+    description = f"An image processed by the AIRI platform. airilab.com. Generation ID: {generation_id}, Image ID: {image_id}" # not showing
     software = "AIRI Platform v1.0"
     # imagenum = "imagenum?"
     # seed = "seed?"
     exif_dict = {
         "0th": {
-            piexif.ImageIFD.ImageDescription: title.encode('utf-8'),
+            piexif.ImageIFD.ImageDescription: title_field.encode('utf-8'), #标题
             piexif.ImageIFD.Make: camera_maker.encode('utf-8'),
             piexif.ImageIFD.Model: camera_model.encode('utf-8'),
             # piexif.ImageIFD.Copyright: copyright.encode('utf-8'), #decision to remove
-            piexif.ImageIFD.Artist: user_id.encode('utf-8'),
+            piexif.ImageIFD.Artist: artist_field.encode('utf-8'), #作者
             piexif.ImageIFD.ProcessingSoftware: software.encode('utf-8'),
             piexif.ImageIFD.Software: software.encode('utf-8'),
             piexif.ImageIFD.DateTime: date_taken.encode('utf-8'),
             piexif.ImageIFD.HostComputer: software.encode('utf-8'),
             # piexif.ImageIFD.ImageID: imageid.encode('utf-8'), #bad
             # piexif.ImageIFD.ImageNumber: imagenum.encode('utf-8'), #bad
-            piexif.ImageIFD.ImageHistory: keywords.encode('utf-8'),
+            piexif.ImageIFD.ImageHistory: keywords.encode('utf-8'), # not showing
             # piexif.ImageIFD.ImageResources: description.encode('utf-8'),#bad
             # piexif.ImageIFD.Noise: seed.encode('utf-8'),#bad
             piexif.ImageIFD.Predictor: camera_model.encode('utf-8'),
-            piexif.ImageIFD.OriginalRawFileData: keywords.encode('utf-8'),
+            piexif.ImageIFD.OriginalRawFileData: keywords.encode('utf-8'), # not showing
             # piexif.ImageIFD.OriginalRawFileName: imageid.encode('utf-8'),#bad
-            piexif.ImageIFD.ProfileCopyright: copyright.encode('utf-8'),
+            # piexif.ImageIFD.ProfileCopyright: copyright.encode('utf-8'), #decision to remove # not showing
             piexif.ImageIFD.ProfileEmbedPolicy: software.encode('utf-8'),
             piexif.ImageIFD.Rating: "5".encode('utf-8'),
-            piexif.ImageIFD.ProfileName: user_id.encode('utf-8'),
+            piexif.ImageIFD.ProfileName: artist_field.encode('utf-8'), # not showing
             # piexif.ImageIFD.XPAuthor: user_id.encode('utf-8'),#bad
             # piexif.ImageIFD.XPTitle: title.encode('utf-8'),#bad
             # piexif.ImageIFD.XPKeywords: keywords.encode('utf-8'),#bad
@@ -186,15 +253,15 @@ def set_img_exif_dict(image_id="img_id_1"):
         },
         "Exif": {
             piexif.ExifIFD.DateTimeOriginal: date_taken.encode('utf-8'),
-            piexif.ExifIFD.CameraOwnerName: user_id.encode('utf-8'),
+            piexif.ExifIFD.CameraOwnerName: artist_field.encode('utf-8'), # not showing
             piexif.ExifIFD.DateTimeDigitized: date_taken.encode('utf-8'),
             piexif.ExifIFD.DeviceSettingDescription: camera_model.encode('utf-8'),
-            piexif.ExifIFD.FileSource: keywords.encode('utf-8'),
+            piexif.ExifIFD.FileSource: keywords.encode('utf-8'), # not showing
             # piexif.ExifIFD.ImageUniqueID: imageid.encode('utf-8'),#bad
             piexif.ExifIFD.LensMake: camera_maker.encode('utf-8'),
             piexif.ExifIFD.LensModel: camera_model.encode('utf-8'),
-            piexif.ExifIFD.MakerNote: description.encode('utf-8'),
-            piexif.ExifIFD.UserComment: description.encode('utf-8'),
+            piexif.ExifIFD.MakerNote: description.encode('utf-8'), # not showing
+            piexif.ExifIFD.UserComment: description.encode('utf-8'), # not showing
         }
     }
 
@@ -548,7 +615,7 @@ class Api:
 
         mask = img2imgreq.mask
         if mask:
-            mask = decode_to_image(mask)
+            mask = mask_decode_to_image(mask)
 
         script_runner = scripts.scripts_img2img
         if not script_runner.scripts:
@@ -994,15 +1061,48 @@ class Api:
             else:
                 print("  " * indent + f"{attr}: {self.truncate_content(value)}")
 
+    def print_result_logging(self, results, fromwhere):
+        print(f"\n -----<<<<<<<  UserID@{user_input_data['user_id']}  >>>>>>>----- ")
+        print(f"\n -----<<<<<<<  GenID@{user_input_data['generation_id']}  >>>>>>>----- ")
+        print(f"\n -----<<<<<<<  WFID@{user_input_data['workflow']}  >>>>>>>----- ")
+        print_text = (f"\n Result of task {fromwhere} using user_input_data:" +
+                      f"user_id={user_input_data['user_id']}," +
+                      f"date_taken={user_input_data['date_taken']}," +
+                      f"generation_id={user_input_data['generation_id']}," +
+                      f"workflow={user_input_data['workflow']}")
+
+        if 'project_id' in user_input_data:
+            print_text = print_text + f",project_id={user_input_data['project_id']},"
+        if 'design_library_style' in user_input_data:
+            print_text = print_text + f",design_library_style={user_input_data['design_library_style']},"
+        if 'camera' in user_input_data:
+            print_text = print_text + f",camera={user_input_data['camera']},"
+        if 'fidelity_level' in user_input_data:
+            print_text = print_text + f",fidelity_level={user_input_data['fidelity_level']},"
+        if 'additional_prompt' in user_input_data:
+            print_text = print_text + f",additional_prompt={user_input_data['additional_prompt']},"
+        if 'atmosphere' in user_input_data:
+            print_text = print_text + f",atmosphere={user_input_data['atmosphere']},"
+        if 'orientation' in user_input_data:
+            print_text = print_text + f",orientation={user_input_data['orientation']},"
+        if 'imageRatio' in user_input_data:
+            print_text = print_text + f",imageRatio={user_input_data['imageRatio']}"
+
+        print_text = print_text + f"========= response={results}"
+        print(print_text)
+
     def invocations(self, req: models.InvocationsRequest):
         with self.invocations_lock:
+            print("\n")
+            print("\n")
+            print("\n")
             print(f"\n ----------------------------invocation log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} --------------------------- ")
-            # try:
-            #    print("")
-            #    self.req_logging(req)
-            # except Exception as e:
-            #    print("console Log ran into issue: ", e)
-            # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} req in invocations: {req}")
+            try:
+               print("")
+               self.req_logging(req)
+            except Exception as e:
+               print("console Log ran into issue: ", e)
+            print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} req in invocations: {req}")
             global user_input_data
             user_input_data = {}
             # if 'alwayson_scripts' in req:
@@ -1011,23 +1111,7 @@ class Api:
             #         req.alwayson_scripts.pop("user_input")
             if req.user_input != None:
                 user_input_data = req.user_input
-                print(f"\n -----<<<<<<<  UserID@{user_input_data['user_id']}  >>>>>>>----- ")
-                print(f"\n -----<<<<<<<  GenID@{user_input_data['generation_id']}  >>>>>>>----- ")
-                print(f"\n -----<<<<<<<  WFID@{user_input_data['workflow']}  >>>>>>>----- ")
-                print(f"\n Received user_input_data:\n"
-                          f"user_id={user_input_data['user_id']},\n"
-                          f"date_taken={user_input_data['date_taken']},\n"
-                          f"project_id={user_input_data['project_id']},\n"
-                          f"generation_id={user_input_data['generation_id']},\n"
-                          f"workflow={user_input_data['workflow']},\n"
-                          f"design_library_style={user_input_data['design_library_style']},\n"
-                          f"camera={user_input_data['camera']},\n"
-                          f"fidelity_level={user_input_data['fidelity_level']},\n"
-                          f"additional_prompt={user_input_data['additional_prompt']},\n"
-                          f"atmosphere={user_input_data['atmosphere']},\n"
-                          f"img_width={user_input_data['img_width']},\n"
-                          f"img_height={user_input_data['img_height']}\n"
-                      )
+
                 # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} user_input processed in invocations")
                 # req.pop('user_input', None)
             else:
@@ -1063,7 +1147,7 @@ class Api:
             if req.task == 'text-to-image':
                 if embeddings_s3uri != '':
                     response = requests.get('http://0.0.0.0:8080/controlnet/model_list', params={'update': True})
-                    # print('Controlnet models: ', response.text)
+                    print('Controlnet models: ', response.text)
 
                     shared.s3_download(embeddings_s3uri, shared.cmd_opts.embeddings_dir)
                     sd_hijack.model_hijack.embedding_db.load_textual_inversion_embeddings()
@@ -1078,10 +1162,21 @@ class Api:
                 if "infotexts" in oldinfo:
                     oldinfo.pop("infotexts", None)
                 response.info = json.dumps(oldinfo)
+                self.print_result_logging(results=response, fromwhere=req.task)
                 return response
             elif req.task == 'image-to-image':
                 response = requests.get('http://0.0.0.0:8080/controlnet/model_list', params={'update': True})
-                # print('Controlnet models: ', response.text)
+                print('Controlnet models: ', response.text)
+                # response = requests.get('http://0.0.0.0:8080/sam/heartbeat')
+                # print(f'\nsam/heartbeat: {response.text}\n')
+                # response = requests.get('http://0.0.0.0:8080/sam/sam-model')
+                # print(f'\nsam/sam-model: {response.text}\n')
+                #
+                #
+                # if 'user_input_data' in globals():
+                #     # global user_input_data
+                #     if user_input_data['workflow'] in ["style", "image"]:
+                #         print(f"In {user_input_data['workflow']}")
 
                 if embeddings_s3uri != '':
                     shared.s3_download(embeddings_s3uri, shared.cmd_opts.embeddings_dir)
@@ -1097,6 +1192,7 @@ class Api:
                 if "infotexts" in oldinfo:
                     oldinfo.pop("infotexts", None)
                 response.info = json.dumps(oldinfo)
+                self.print_result_logging(results=response, fromwhere=req.task)
                 return response
             elif req.task == 'upscale_from_feed':
                 # only get the one image (in base64)
@@ -1117,6 +1213,7 @@ class Api:
                         oldinfo.pop("infotexts", None)
                     response.info = json.dumps(oldinfo)
                     # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} ### get_cmd_flags is {self.get_cmd_flags()}")
+                    self.print_result_logging(results=response, fromwhere=req.task)
                     return response
                 except Exception as e:  # this is in fact obselete, because there will be a earlier return if OOM, won't reach here, but leaving here just in case
                     print(
@@ -1133,10 +1230,12 @@ class Api:
                     if "infotexts" in oldinfo:
                         oldinfo.pop("infotexts", None)
                     response.info = json.dumps(oldinfo)
+                self.print_result_logging(results=response, fromwhere=req.task)
                 return response
             elif req.task == 'extras-batch-images':
                 response = self.extras_batch_images_api(req.extras_batch_payload)
                 response.images = self.post_invocations(response.images, quality)
+                self.print_result_logging(results=response, fromwhere=req.task)
                 return response
             elif req.task == 'interrogate':
                 response = self.interrogateapi(req.interrogate_payload)
