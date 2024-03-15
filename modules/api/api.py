@@ -997,11 +997,11 @@ class Api:
     def invocations(self, req: models.InvocationsRequest):
         with self.invocations_lock:
             print(f"\n ----------------------------invocation log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} --------------------------- ")
-            # try:
-            #    print("")
-            #    self.req_logging(req)
-            # except Exception as e:
-            #    print("console Log ran into issue: ", e)
+            try:
+               print("")
+               self.req_logging(req)
+            except Exception as e:
+               print("console Log ran into issue: ", e)
             # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} req in invocations: {req}")
             global user_input_data
             user_input_data = {}
@@ -1022,7 +1022,7 @@ class Api:
                           f"workflow={user_input_data['workflow']},\n"
                           f"design_library_style={user_input_data['design_library_style']},\n"
                           f"camera={user_input_data['camera']},\n"
-                          f"fidelity_level={user_input_data['fidelity_level']},\n"
+                          # f"fidelity_level={user_input_data['fidelity_level']},\n"
                           f"additional_prompt={user_input_data['additional_prompt']},\n"
                           f"atmosphere={user_input_data['atmosphere']},\n"
                           f"img_width={user_input_data['img_width']},\n"
