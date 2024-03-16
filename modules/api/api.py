@@ -1025,18 +1025,18 @@ class Api:
                 f"workflow={user_input_data['workflow']}," +
                 f"design_library_style={user_input_data['design_library_style']}"
 
-                if 'camera' in user_input_data:
-                    print_text = print_text + f",camera={user_input_data['camera']},"
-                if 'fidelity_level' in user_input_data:
-                    print_text = print_text + f",fidelity_level={user_input_data['fidelity_level']},"
-                if 'additional_prompt' in user_input_data:
-                    print_text = print_text + f",additional_prompt={user_input_data['additional_prompt']},"
-                if 'atmosphere' in user_input_data:
-                    print_text = print_text + f",atmosphere={user_input_data['atmosphere']},"
-                if 'orientation' in user_input_data:
-                    print_text = print_text + f",orientation={user_input_data['orientation']},"
-                if 'imageRatio' in user_input_data:
-                    print_text = print_text + f",imageRatio={user_input_data['imageRatio']}"
+                # if 'camera' in user_input_data:
+                #     print_text = print_text + f",camera={user_input_data['camera']},"
+                # if 'fidelity_level' in user_input_data:
+                #     print_text = print_text + f",fidelity_level={user_input_data['fidelity_level']},"
+                # if 'additional_prompt' in user_input_data:
+                #     print_text = print_text + f",additional_prompt={user_input_data['additional_prompt']},"
+                # if 'atmosphere' in user_input_data:
+                #     print_text = print_text + f",atmosphere={user_input_data['atmosphere']},"
+                # if 'orientation' in user_input_data:
+                #     print_text = print_text + f",orientation={user_input_data['orientation']},"
+                # if 'imageRatio' in user_input_data:
+                #     print_text = print_text + f",imageRatio={user_input_data['imageRatio']}"
 
                 print(print_text)
                 # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} user_input processed in invocations")
