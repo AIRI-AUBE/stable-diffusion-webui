@@ -1000,12 +1000,12 @@ class Api:
             print("\n")
             print("\n")
             print(f"\n ----------------------------invocation log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} --------------------------- ")
-            # try:
-            #    print("")
-            #    self.req_logging(req)
-            # except Exception as e:
-            #    print("console Log ran into issue: ", e)
-            # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} req in invocations: {req}")
+            try:
+               print("")
+               self.req_logging(req)
+            except Exception as e:
+               print("console Log ran into issue: ", e)
+            print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} req in invocations: {req}")
             global user_input_data
             user_input_data = {}
             # if 'alwayson_scripts' in req:
@@ -1085,6 +1085,14 @@ class Api:
             elif req.task == 'image-to-image':
                 # response = requests.get('http://0.0.0.0:8080/controlnet/model_list', params={'update': True})
                 # print('Controlnet models: ', response.text)
+                response = requests.get('http://0.0.0.0:8080/sam/heartbeat')
+                print(f'\nsam/heartbeat: {response.text}\n')
+                response = requests.get('http://0.0.0.0:8080/sam/sam-model')
+                print(f'\nsam/sam-model: {response.text}\n')
+
+                global user_input_data
+                if user_input_data['workflow'] in ["style", "image"]:
+                    print(f"In {user_input_data['workflow']}")
 
                 if embeddings_s3uri != '':
                     shared.s3_download(embeddings_s3uri, shared.cmd_opts.embeddings_dir)
