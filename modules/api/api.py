@@ -1065,7 +1065,7 @@ class Api:
 
             if req.task == 'text-to-image':
                 if embeddings_s3uri != '':
-                    response = requests.get('http://0.0.0.0:8080/controlnet/model_list', params={'update': True})
+                    # response = requests.get('http://0.0.0.0:8080/controlnet/model_list', params={'update': True})
                     # print('Controlnet models: ', response.text)
 
                     shared.s3_download(embeddings_s3uri, shared.cmd_opts.embeddings_dir)
@@ -1083,7 +1083,7 @@ class Api:
                 response.info = json.dumps(oldinfo)
                 return response
             elif req.task == 'image-to-image':
-                response = requests.get('http://0.0.0.0:8080/controlnet/model_list', params={'update': True})
+                # response = requests.get('http://0.0.0.0:8080/controlnet/model_list', params={'update': True})
                 # print('Controlnet models: ', response.text)
 
                 if embeddings_s3uri != '':
