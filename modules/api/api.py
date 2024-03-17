@@ -1100,7 +1100,7 @@ class Api:
 
 
                 if 'user_input_data' in globals():
-                    global user_input_data
+                    # global user_input_data
                     if user_input_data['workflow'] in ["style", "image"]:
                         print(f"In {user_input_data['workflow']}")
 
