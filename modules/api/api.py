@@ -1017,13 +1017,13 @@ class Api:
                 print(f"\n -----<<<<<<<  UserID@{user_input_data['user_id']}  >>>>>>>----- ")
                 print(f"\n -----<<<<<<<  GenID@{user_input_data['generation_id']}  >>>>>>>----- ")
                 print(f"\n -----<<<<<<<  WFID@{user_input_data['workflow']}  >>>>>>>----- ")
-                print_text = f"\n Received user_input_data:" +
-                f"user_id={user_input_data['user_id']}," +
-                f"date_taken={user_input_data['date_taken']}," +
-                f"project_id={user_input_data['project_id']}," +
-                f"generation_id={user_input_data['generation_id']}," +
-                f"workflow={user_input_data['workflow']}," +
-                f"design_library_style={user_input_data['design_library_style']}"
+                print_text = (f"\n Received user_input_data:" +
+                              f"user_id={user_input_data['user_id']}," +
+                              f"date_taken={user_input_data['date_taken']}," +
+                              f"project_id={user_input_data['project_id']}," +
+                              f"generation_id={user_input_data['generation_id']}," +
+                              f"workflow={user_input_data['workflow']}," +
+                              f"design_library_style={user_input_data['design_library_style']}")
 
                 # if 'camera' in user_input_data:
                 #     print_text = print_text + f",camera={user_input_data['camera']},"
