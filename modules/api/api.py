@@ -1098,9 +1098,11 @@ class Api:
                 response = requests.get('http://0.0.0.0:8080/sam/sam-model')
                 print(f'\nsam/sam-model: {response.text}\n')
 
-                global user_input_data
-                if user_input_data['workflow'] in ["style", "image"]:
-                    print(f"In {user_input_data['workflow']}")
+
+                if 'user_input_data' in globals():
+                    global user_input_data
+                    if user_input_data['workflow'] in ["style", "image"]:
+                        print(f"In {user_input_data['workflow']}")
 
                 if embeddings_s3uri != '':
                     shared.s3_download(embeddings_s3uri, shared.cmd_opts.embeddings_dir)
