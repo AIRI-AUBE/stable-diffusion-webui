@@ -105,6 +105,32 @@ def decode_to_image(encoding):
     except Exception as err:
         raise HTTPException(status_code=500, detail="Invalid encoded image")
 
+def mask_decode_to_image(encoding):
+    image = decode_to_image(encoding)
+    try:
+        # response = requests.get('http://0.0.0.0:8080/sam/sam-model')
+        # print(f'\nsam/sam-model: {response.text}\n')
+        if "Success" in requests.get('http://0.0.0.0:8080/sam/heartbeat'):
+            # print(f'\nsam/heartbeat: {response.text}\n')
+            image = encode_pil_to_base64(image)
+            response = requests.post('http://0.0.0.0:8080/sam/heartbeat', json={
+                "input_image": image,
+                "mask": image,
+                "dilate_amount": 16
+            })
+            if "masked_image" in response:
+                image = decode_base64_to_image(response.masked_image)
+
+            else:
+                print(f'!!!! Error: sam did not return a masked_image!')
+                raise HTTPException(status_code=500, detail="Error: sam did not return a masked_image!")
+        else:
+            print(f'!!!! Error: sam heartbeat lost!')
+    except Exception as err:
+        pass
+
+    return image
+
 def decode_base64_to_image(encoding):
     if encoding.startswith("http://") or encoding.startswith("https://"):
         if not opts.api_enable_requests:
@@ -1093,16 +1119,16 @@ class Api:
             elif req.task == 'image-to-image':
                 # response = requests.get('http://0.0.0.0:8080/controlnet/model_list', params={'update': True})
                 # print('Controlnet models: ', response.text)
-                response = requests.get('http://0.0.0.0:8080/sam/heartbeat')
-                print(f'\nsam/heartbeat: {response.text}\n')
-                response = requests.get('http://0.0.0.0:8080/sam/sam-model')
-                print(f'\nsam/sam-model: {response.text}\n')
-
-
-                if 'user_input_data' in globals():
-                    # global user_input_data
-                    if user_input_data['workflow'] in ["style", "image"]:
-                        print(f"In {user_input_data['workflow']}")
+                # response = requests.get('http://0.0.0.0:8080/sam/heartbeat')
+                # print(f'\nsam/heartbeat: {response.text}\n')
+                # response = requests.get('http://0.0.0.0:8080/sam/sam-model')
+                # print(f'\nsam/sam-model: {response.text}\n')
+                #
+                #
+                # if 'user_input_data' in globals():
+                #     # global user_input_data
+                #     if user_input_data['workflow'] in ["style", "image"]:
+                #         print(f"In {user_input_data['workflow']}")
 
                 if embeddings_s3uri != '':
                     shared.s3_download(embeddings_s3uri, shared.cmd_opts.embeddings_dir)
