@@ -149,9 +149,9 @@ def set_img_exif_dict(image_id="img_id_1"):
     generation_id = "gen_id_1"
     if "generation_id" in user_input_data:
         generation_id = user_input_data['generation_id']
-    keywords = f"Generated in AIRI platform. https://airilab.com . Generation ID: {generation_id}, Image ID: {image_id}"
-    title = f"{user_id}_https://airilab.com_{image_id}" #####
-    description = f"An image processed by the AIRI platform. Generation ID: {generation_id}, Image ID: {image_id}"
+    keywords = f"Generated in AIRI platform. airilab.com. Generation ID: {generation_id}, Image ID: {image_id}"
+    title = f"{user_id}_airilab.com_{image_id}" #####
+    description = f"An image processed by the AIRI platform. airilab.com. Generation ID: {generation_id}, Image ID: {image_id}"
     software = "AIRI Platform v1.0"
     # imagenum = "imagenum?"
     # seed = "seed?"
