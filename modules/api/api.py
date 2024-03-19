@@ -115,8 +115,8 @@ def mask_decode_to_image(encoding):
         print(f'\nsam/sam-model: {response.text}\n')
         if "Success" in response.text:
             # print(f'\nsam/heartbeat: {response.text}\n')
-            image = encode_pil_to_base64(image)
-            print(f"mask_decode_to_image image mid {type(image)}")
+            # image = encode_pil_to_base64(image)
+            print(f"mask_decode_to_image image mid 1 {type(image)}")
             dilate_value = 16
             response = requests.post('http://0.0.0.0:8080/sam/dilate-mask', json={
                 "input_image": image,
@@ -126,7 +126,7 @@ def mask_decode_to_image(encoding):
             print(f"mask_decode_to_image response 1 masked_image dilate_amount {len(response.dilate_value)}")
             if "masked_image" in response:
                 print(f"mask_decode_to_image response 2 masked_image length {len(response.masked_image)}")
-                print(f"mask_decode_to_image image mid {type(response.masked_image)}")
+                print(f"mask_decode_to_image image mid 2 {type(response.masked_image)}")
                 image = decode_base64_to_image(response.masked_image)
                 print(f"mask_decode_to_image image after {type(image)}")
                 print(f'SAM successfully dilated mask by {dilate_value}.')
