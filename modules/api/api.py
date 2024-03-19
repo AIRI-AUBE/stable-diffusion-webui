@@ -122,7 +122,7 @@ def mask_decode_to_image(encoding):
                 "input_image": image,
                 "mask": image,
                 "dilate_amount": dilate_value
-            })
+            }, timeout=60)
             print(f"mask_decode_to_image response 1 masked_image dilate_amount {len(response.dilate_value)}")
             if "masked_image" in response:
                 print(f"mask_decode_to_image response 2 masked_image length {len(response.masked_image)}")
