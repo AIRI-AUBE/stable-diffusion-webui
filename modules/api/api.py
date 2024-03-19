@@ -110,7 +110,9 @@ def mask_decode_to_image(encoding):
     try:
         # response = requests.get('http://0.0.0.0:8080/sam/sam-model')
         # print(f'\nsam/sam-model: {response.text}\n')
-        if "Success" in requests.get('http://0.0.0.0:8080/sam/heartbeat'):
+        response = requests.get('http://0.0.0.0:8080/sam/heartbeat')
+        print(f'\nsam/sam-model: {response.text}\n')
+        if "Success" in response.text:
             # print(f'\nsam/heartbeat: {response.text}\n')
             image = encode_pil_to_base64(image)
             response = requests.post('http://0.0.0.0:8080/sam/heartbeat', json={
@@ -120,12 +122,13 @@ def mask_decode_to_image(encoding):
             })
             if "masked_image" in response:
                 image = decode_base64_to_image(response.masked_image)
+                print(f'SAM successfully dilated mask by 16.')
 
             else:
-                print(f'!!!! Error: sam did not return a masked_image!')
+                print(f'!!!! Error: SAM did not return a masked_image!')
                 raise HTTPException(status_code=500, detail="Error: sam did not return a masked_image!")
         else:
-            print(f'!!!! Error: sam heartbeat lost!')
+            print(f'!!!! Error: SAM heartbeat lost!')
     except Exception as err:
         pass
 
