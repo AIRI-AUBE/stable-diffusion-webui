@@ -118,7 +118,7 @@ def mask_decode_to_image(encoding):
             image = encode_pil_to_base64(image)
             print(f"mask_decode_to_image image mid {type(image)}")
             dilate_value = 16
-            response = requests.post('http://0.0.0.0:8080/sam/heartbeat', json={
+            response = requests.post('http://0.0.0.0:8080/sam/dilate-mask', json={
                 "input_image": image,
                 "mask": image,
                 "dilate_amount": dilate_value
