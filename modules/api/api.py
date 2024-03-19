@@ -134,7 +134,7 @@ def mask_decode_to_image(encoding):
                 print(f'SAM successfully dilated mask by {dilate_value}.')
 
             else:
-                print(f'!!!! Error: SAM did not return a masked_image!')
+                print(f'!!!! Error: SAM did not return a masked_image! response is {response}')
                 raise HTTPException(status_code=500, detail="Error: sam did not return a masked_image!")
         else:
             print(f'!!!! Error: SAM heartbeat lost!')
