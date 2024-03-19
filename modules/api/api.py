@@ -574,7 +574,7 @@ class Api:
 
         mask = img2imgreq.mask
         if mask:
-            mask = decode_to_image(mask)
+            mask = mask_decode_to_image(mask)
 
         script_runner = scripts.scripts_img2img
         if not script_runner.scripts:
