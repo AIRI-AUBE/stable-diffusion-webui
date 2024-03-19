@@ -120,12 +120,13 @@ def mask_decode_to_image(encoding):
             image = image.decode('utf-8')  # Decode bytes to string
             print(f"mask_decode_to_image image mid 2 {type(image)}")
             dilate_value = 16
+            start_time = time.time()
             response = requests.post('http://0.0.0.0:8080/sam/dilate-mask', json={
                 "input_image": image,
                 "mask": image,
                 "dilate_amount": dilate_value
             }, timeout=60)
-            print(f"mask_decode_to_image response 1 masked_image length {len(response.masked_image)}")
+            print(f"mask_decode_to_image sam dilate-mask response 1 took {time.time() - start_time}s.")
             if "masked_image" in response:
                 print(f"mask_decode_to_image response 2 masked_image length {len(response.masked_image)}")
                 print(f"mask_decode_to_image image mid 3 {type(response.masked_image)}")
