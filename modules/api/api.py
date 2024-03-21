@@ -1136,7 +1136,7 @@ class Api:
                 if "infotexts" in oldinfo:
                     oldinfo.pop("infotexts", None)
                 response.info = json.dumps(oldinfo)
-                self.print_result_logging(result=response, fromwhere=req.task)
+                self.print_result_logging(results=response, fromwhere=req.task)
                 return response
             elif req.task == 'image-to-image':
                 response = requests.get('http://0.0.0.0:8080/controlnet/model_list', params={'update': True})
@@ -1166,7 +1166,7 @@ class Api:
                 if "infotexts" in oldinfo:
                     oldinfo.pop("infotexts", None)
                 response.info = json.dumps(oldinfo)
-                self.print_result_logging(result=response, fromwhere=req.task)
+                self.print_result_logging(results=response, fromwhere=req.task)
                 return response
             elif req.task == 'upscale_from_feed':
                 # only get the one image (in base64)
@@ -1187,7 +1187,7 @@ class Api:
                         oldinfo.pop("infotexts", None)
                     response.info = json.dumps(oldinfo)
                     # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} ### get_cmd_flags is {self.get_cmd_flags()}")
-                    self.print_result_logging(result=response, fromwhere=req.task)
+                    self.print_result_logging(results=response, fromwhere=req.task)
                     return response
                 except Exception as e:  # this is in fact obselete, because there will be a earlier return if OOM, won't reach here, but leaving here just in case
                     print(
@@ -1204,12 +1204,12 @@ class Api:
                     if "infotexts" in oldinfo:
                         oldinfo.pop("infotexts", None)
                     response.info = json.dumps(oldinfo)
-                self.print_result_logging(result=response, fromwhere=req.task)
+                self.print_result_logging(results=response, fromwhere=req.task)
                 return response
             elif req.task == 'extras-batch-images':
                 response = self.extras_batch_images_api(req.extras_batch_payload)
                 response.images = self.post_invocations(response.images, quality)
-                self.print_result_logging(result=response, fromwhere=req.task)
+                self.print_result_logging(results=response, fromwhere=req.task)
                 return response
             elif req.task == 'interrogate':
                 response = self.interrogateapi(req.interrogate_payload)
