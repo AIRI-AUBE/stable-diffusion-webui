@@ -1061,11 +1061,11 @@ class Api:
                 print_text = (f"\n Received user_input_data:" +
                               f"user_id={user_input_data['user_id']}," +
                               f"date_taken={user_input_data['date_taken']}," +
-                              f"project_id={user_input_data['project_id']}," +
                               f"generation_id={user_input_data['generation_id']}," +
                               f"workflow={user_input_data['workflow']}")
 
-
+                if 'project_id' in user_input_data:
+                    print_text = print_text + f",project_id={user_input_data['project_id']},"
                 if 'design_library_style' in user_input_data:
                     print_text = print_text + f",design_library_style={user_input_data['design_library_style']},"
                 if 'camera' in user_input_data:
