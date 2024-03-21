@@ -121,21 +121,22 @@ def mask_decode_to_image(encoding):
             print(f"mask_decode_to_image image mid 2 {type(image)}")
             dilate_value = 16
             start_time = time.time()
-            response = requests.post('http://0.0.0.0:8080/sam/dilate-mask', json={
+            response_raw = requests.post('http://0.0.0.0:8080/sam/dilate-mask', json={
                 "input_image": image,
                 "mask": image,
                 "dilate_amount": dilate_value
             }, timeout=60)
+            response = response_raw.json()
             print(f"mask_decode_to_image sam dilate-mask response 1 took {time.time() - start_time}s.")
-            if "masked_image" in response:
-                print(f"mask_decode_to_image response 2 masked_image length {len(response.masked_image)}")
-                print(f"mask_decode_to_image image mid 3 {type(response.masked_image)}")
-                image = decode_base64_to_image(response.masked_image)
+            if "mask" in response:
+                print(f"mask_decode_to_image response 2 mask image length {len(response['mask'])}")
+                print(f"mask_decode_to_image image mid 3 {type(response['mask'])}")
+                image = decode_base64_to_image(response['mask'])
                 print(f"mask_decode_to_image image after {type(image)}")
                 print(f'SAM successfully dilated mask by {dilate_value}.')
 
             else:
-                print(f'!!!! Error: SAM did not return a masked_image! response is {response}')
+                print(f'!!!! Error: SAM did not return a masked_image! response is {response_raw}')
                 raise HTTPException(status_code=500, detail="Error: sam did not return a masked_image!")
         else:
             print(f'!!!! Error: SAM heartbeat lost!')
