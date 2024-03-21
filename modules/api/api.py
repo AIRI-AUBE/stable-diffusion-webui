@@ -1035,6 +1035,36 @@ class Api:
             else:
                 print("  " * indent + f"{attr}: {self.truncate_content(value)}")
 
+    def print_result_logging(self, results, fromwhere):
+        print(f"\n -----<<<<<<<  UserID@{user_input_data['user_id']}  >>>>>>>----- ")
+        print(f"\n -----<<<<<<<  GenID@{user_input_data['generation_id']}  >>>>>>>----- ")
+        print(f"\n -----<<<<<<<  WFID@{user_input_data['workflow']}  >>>>>>>----- ")
+        print_text = (f"\n Result of task {fromwhere} using user_input_data:" +
+                      f"user_id={user_input_data['user_id']}," +
+                      f"date_taken={user_input_data['date_taken']}," +
+                      f"generation_id={user_input_data['generation_id']}," +
+                      f"workflow={user_input_data['workflow']}")
+
+        if 'project_id' in user_input_data:
+            print_text = print_text + f",project_id={user_input_data['project_id']},"
+        if 'design_library_style' in user_input_data:
+            print_text = print_text + f",design_library_style={user_input_data['design_library_style']},"
+        if 'camera' in user_input_data:
+            print_text = print_text + f",camera={user_input_data['camera']},"
+        if 'fidelity_level' in user_input_data:
+            print_text = print_text + f",fidelity_level={user_input_data['fidelity_level']},"
+        if 'additional_prompt' in user_input_data:
+            print_text = print_text + f",additional_prompt={user_input_data['additional_prompt']},"
+        if 'atmosphere' in user_input_data:
+            print_text = print_text + f",atmosphere={user_input_data['atmosphere']},"
+        if 'orientation' in user_input_data:
+            print_text = print_text + f",orientation={user_input_data['orientation']},"
+        if 'imageRatio' in user_input_data:
+            print_text = print_text + f",imageRatio={user_input_data['imageRatio']}"
+
+        print_text = print_text + f"========= response={results}"
+        print(print_text)
+
     def invocations(self, req: models.InvocationsRequest):
         with self.invocations_lock:
             print("\n")
@@ -1055,33 +1085,7 @@ class Api:
             #         req.alwayson_scripts.pop("user_input")
             if req.user_input != None:
                 user_input_data = req.user_input
-                print(f"\n -----<<<<<<<  UserID@{user_input_data['user_id']}  >>>>>>>----- ")
-                print(f"\n -----<<<<<<<  GenID@{user_input_data['generation_id']}  >>>>>>>----- ")
-                print(f"\n -----<<<<<<<  WFID@{user_input_data['workflow']}  >>>>>>>----- ")
-                print_text = (f"\n Received user_input_data:" +
-                              f"user_id={user_input_data['user_id']}," +
-                              f"date_taken={user_input_data['date_taken']}," +
-                              f"generation_id={user_input_data['generation_id']}," +
-                              f"workflow={user_input_data['workflow']}")
 
-                if 'project_id' in user_input_data:
-                    print_text = print_text + f",project_id={user_input_data['project_id']},"
-                if 'design_library_style' in user_input_data:
-                    print_text = print_text + f",design_library_style={user_input_data['design_library_style']},"
-                if 'camera' in user_input_data:
-                    print_text = print_text + f",camera={user_input_data['camera']},"
-                if 'fidelity_level' in user_input_data:
-                    print_text = print_text + f",fidelity_level={user_input_data['fidelity_level']},"
-                if 'additional_prompt' in user_input_data:
-                    print_text = print_text + f",additional_prompt={user_input_data['additional_prompt']},"
-                if 'atmosphere' in user_input_data:
-                    print_text = print_text + f",atmosphere={user_input_data['atmosphere']},"
-                if 'orientation' in user_input_data:
-                    print_text = print_text + f",orientation={user_input_data['orientation']},"
-                if 'imageRatio' in user_input_data:
-                    print_text = print_text + f",imageRatio={user_input_data['imageRatio']}"
-
-                print(print_text)
                 # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} user_input processed in invocations")
                 # req.pop('user_input', None)
             else:
@@ -1132,6 +1136,7 @@ class Api:
                 if "infotexts" in oldinfo:
                     oldinfo.pop("infotexts", None)
                 response.info = json.dumps(oldinfo)
+                self.print_result_logging(result=response, fromwhere=req.task)
                 return response
             elif req.task == 'image-to-image':
                 response = requests.get('http://0.0.0.0:8080/controlnet/model_list', params={'update': True})
@@ -1161,6 +1166,7 @@ class Api:
                 if "infotexts" in oldinfo:
                     oldinfo.pop("infotexts", None)
                 response.info = json.dumps(oldinfo)
+                self.print_result_logging(result=response, fromwhere=req.task)
                 return response
             elif req.task == 'upscale_from_feed':
                 # only get the one image (in base64)
@@ -1181,6 +1187,7 @@ class Api:
                         oldinfo.pop("infotexts", None)
                     response.info = json.dumps(oldinfo)
                     # print(f"log@{datetime.datetime.now().strftime(f'%Y%m%d%H%M%S')} ### get_cmd_flags is {self.get_cmd_flags()}")
+                    self.print_result_logging(result=response, fromwhere=req.task)
                     return response
                 except Exception as e:  # this is in fact obselete, because there will be a earlier return if OOM, won't reach here, but leaving here just in case
                     print(
@@ -1197,10 +1204,12 @@ class Api:
                     if "infotexts" in oldinfo:
                         oldinfo.pop("infotexts", None)
                     response.info = json.dumps(oldinfo)
+                self.print_result_logging(result=response, fromwhere=req.task)
                 return response
             elif req.task == 'extras-batch-images':
                 response = self.extras_batch_images_api(req.extras_batch_payload)
                 response.images = self.post_invocations(response.images, quality)
+                self.print_result_logging(result=response, fromwhere=req.task)
                 return response
             elif req.task == 'interrogate':
                 response = self.interrogateapi(req.interrogate_payload)
