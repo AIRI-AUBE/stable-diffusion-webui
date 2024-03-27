@@ -181,44 +181,70 @@ def set_img_exif_dict(image_id="img_id_1"):
     global user_input_data
     if "date_taken" in user_input_data:
         date_taken = user_input_data['date_taken']
-    copyright = "© AIRI Lab. All Rights Reserved."
+    # copyright = "© AIRI Lab. All Rights Reserved." #decision to remove
     camera_maker = "AIRI Lab"
     camera_model = "AIRI Model 1.0"
-    user_id = "AIRI tester"
-    if "user_id" in user_input_data:
-        user_id = user_input_data['user_id']
     generation_id = "gen_id_1"
     if "generation_id" in user_input_data:
         generation_id = user_input_data['generation_id']
-    keywords = f"Generated in AIRI platform. airilab.com. Generation ID: {generation_id}, Image ID: {image_id}"
-    title = f"{user_id}_airilab.com_{image_id}" #####
-    description = f"An image processed by the AIRI platform. airilab.com. Generation ID: {generation_id}, Image ID: {image_id}"
+
+    user_id = "AIRI tester"
+    if "user_id" in user_input_data:
+        user_id = user_input_data['user_id']
+    oem_id = "gid_1"
+    if "oem_id" in user_input_data:
+        oem_id = user_input_data['oem_id']
+    team_id = "tid_1"
+    if "team_id" in user_input_data:
+        team_id = user_input_data['team_id']
+    project_id = "pid_1"
+    if "project_id" in user_input_data:
+        project_id = user_input_data['project_id']
+
+    user_name = "un_1"
+    if "user_name" in user_input_data:
+        user_name = user_input_data['user_name']
+    oem_name = "on_1"
+    if "oem_name" in user_input_data:
+        oem_name = user_input_data['oem_name']
+    team_name = "tn_1"
+    if "team_name" in user_input_data:
+        team_name = user_input_data['team_name']
+    project_name = "pn_1"
+    if "project_name" in user_input_data:
+        project_name = user_input_data['project_name']
+
+    title_field = f"{oem_id}/{team_id}/{project_id}/{user_id}_airilab.com_{image_id}"
+    artist_field = f"{oem_name}/{team_name}/{project_name}/{user_name}"
+
+    keywords = f"Generated in AIRI platform. airilab.com. Generation ID: {generation_id}, Image ID: {image_id}" # not showing
+    description = f"An image processed by the AIRI platform. airilab.com. Generation ID: {generation_id}, Image ID: {image_id}" # not showing
     software = "AIRI Platform v1.0"
     # imagenum = "imagenum?"
     # seed = "seed?"
     exif_dict = {
         "0th": {
-            piexif.ImageIFD.ImageDescription: title.encode('utf-8'),
+            piexif.ImageIFD.ImageDescription: title_field.encode('utf-8'), #标题
             piexif.ImageIFD.Make: camera_maker.encode('utf-8'),
             piexif.ImageIFD.Model: camera_model.encode('utf-8'),
             # piexif.ImageIFD.Copyright: copyright.encode('utf-8'), #decision to remove
-            piexif.ImageIFD.Artist: user_id.encode('utf-8'),
+            piexif.ImageIFD.Artist: artist_field.encode('utf-8'), #作者
             piexif.ImageIFD.ProcessingSoftware: software.encode('utf-8'),
             piexif.ImageIFD.Software: software.encode('utf-8'),
             piexif.ImageIFD.DateTime: date_taken.encode('utf-8'),
             piexif.ImageIFD.HostComputer: software.encode('utf-8'),
             # piexif.ImageIFD.ImageID: imageid.encode('utf-8'), #bad
             # piexif.ImageIFD.ImageNumber: imagenum.encode('utf-8'), #bad
-            piexif.ImageIFD.ImageHistory: keywords.encode('utf-8'),
+            piexif.ImageIFD.ImageHistory: keywords.encode('utf-8'), # not showing
             # piexif.ImageIFD.ImageResources: description.encode('utf-8'),#bad
             # piexif.ImageIFD.Noise: seed.encode('utf-8'),#bad
             piexif.ImageIFD.Predictor: camera_model.encode('utf-8'),
-            piexif.ImageIFD.OriginalRawFileData: keywords.encode('utf-8'),
+            piexif.ImageIFD.OriginalRawFileData: keywords.encode('utf-8'), # not showing
             # piexif.ImageIFD.OriginalRawFileName: imageid.encode('utf-8'),#bad
             piexif.ImageIFD.ProfileCopyright: copyright.encode('utf-8'),
             piexif.ImageIFD.ProfileEmbedPolicy: software.encode('utf-8'),
             piexif.ImageIFD.Rating: "5".encode('utf-8'),
-            piexif.ImageIFD.ProfileName: user_id.encode('utf-8'),
+            piexif.ImageIFD.ProfileName: artist_field.encode('utf-8'), # not showing
             # piexif.ImageIFD.XPAuthor: user_id.encode('utf-8'),#bad
             # piexif.ImageIFD.XPTitle: title.encode('utf-8'),#bad
             # piexif.ImageIFD.XPKeywords: keywords.encode('utf-8'),#bad
@@ -227,15 +253,15 @@ def set_img_exif_dict(image_id="img_id_1"):
         },
         "Exif": {
             piexif.ExifIFD.DateTimeOriginal: date_taken.encode('utf-8'),
-            piexif.ExifIFD.CameraOwnerName: user_id.encode('utf-8'),
+            piexif.ExifIFD.CameraOwnerName: artist_field.encode('utf-8'), # not showing
             piexif.ExifIFD.DateTimeDigitized: date_taken.encode('utf-8'),
             piexif.ExifIFD.DeviceSettingDescription: camera_model.encode('utf-8'),
-            piexif.ExifIFD.FileSource: keywords.encode('utf-8'),
+            piexif.ExifIFD.FileSource: keywords.encode('utf-8'), # not showing
             # piexif.ExifIFD.ImageUniqueID: imageid.encode('utf-8'),#bad
             piexif.ExifIFD.LensMake: camera_maker.encode('utf-8'),
             piexif.ExifIFD.LensModel: camera_model.encode('utf-8'),
-            piexif.ExifIFD.MakerNote: description.encode('utf-8'),
-            piexif.ExifIFD.UserComment: description.encode('utf-8'),
+            piexif.ExifIFD.MakerNote: description.encode('utf-8'), # not showing
+            piexif.ExifIFD.UserComment: description.encode('utf-8'), # not showing
         }
     }
 
