@@ -214,6 +214,7 @@ def set_img_exif_dict(image_id="img_id_1"):
     if "project_name" in user_input_data:
         project_name = user_input_data['project_name']
 
+    print(f"type(team_id)={type(team_id)}")
     if team_id == "0":
         team_name = "individual"
 
