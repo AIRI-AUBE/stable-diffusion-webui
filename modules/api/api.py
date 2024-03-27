@@ -214,6 +214,9 @@ def set_img_exif_dict(image_id="img_id_1"):
     if "project_name" in user_input_data:
         project_name = user_input_data['project_name']
 
+    if team_id == "0":
+        team_name = "individual"
+
     title_field = f"{oem_id}/{team_id}/{project_id}/{user_id}_airilab.com_{image_id}"
     artist_field = f"{oem_name}/{team_name}/{project_name}/{user_name}"
 
