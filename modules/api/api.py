@@ -241,7 +241,7 @@ def set_img_exif_dict(image_id="img_id_1"):
             piexif.ImageIFD.Predictor: camera_model.encode('utf-8'),
             piexif.ImageIFD.OriginalRawFileData: keywords.encode('utf-8'), # not showing
             # piexif.ImageIFD.OriginalRawFileName: imageid.encode('utf-8'),#bad
-            piexif.ImageIFD.ProfileCopyright: copyright.encode('utf-8'),
+            # piexif.ImageIFD.ProfileCopyright: copyright.encode('utf-8'), #decision to remove # not showing
             piexif.ImageIFD.ProfileEmbedPolicy: software.encode('utf-8'),
             piexif.ImageIFD.Rating: "5".encode('utf-8'),
             piexif.ImageIFD.ProfileName: artist_field.encode('utf-8'), # not showing
