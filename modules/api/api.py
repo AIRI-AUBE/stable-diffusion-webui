@@ -24,6 +24,7 @@ from modules.processing import StableDiffusionProcessingTxt2Img, StableDiffusion
 from modules.textual_inversion.textual_inversion import create_embedding, train_embedding
 from modules.hypernetworks.hypernetwork import create_hypernetwork, train_hypernetwork
 from PIL import PngImagePlugin, Image
+from modules.sd_models import unload_model_weights, reload_model_weights, checkpoint_aliases
 from modules.sd_models_config import find_checkpoint_config_near_filename
 from modules.realesrgan_model import get_realesrgan_models
 from modules import devices
@@ -704,12 +705,12 @@ class Api:
         return {}
 
     def unloadapi(self):
-        sd_models.unload_model_weights()
+        unload_model_weights()
 
         return {}
 
     def reloadapi(self):
-        sd_models.send_model_to_device(shared.sd_model)
+        reload_model_weights()
 
         return {}
 
@@ -729,7 +730,7 @@ class Api:
 
     def set_config(self, req: dict[str, Any]):
         checkpoint_name = req.get("sd_model_checkpoint", None)
-        if checkpoint_name is not None and checkpoint_name not in sd_models.checkpoint_aliases:
+        if checkpoint_name is not None and checkpoint_name not in checkpoint_aliases:
             raise RuntimeError(f"model {checkpoint_name!r} not found")
 
         for k, v in req.items():
