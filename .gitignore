@@ -13,7 +13,6 @@ __pycache__
 /gfpgan/weights/*.pth
 /ui-config.json
 /outputs
-/config.json
 /log
 /webui.settings.bat
 /embeddings
@@ -38,3 +37,9 @@ notification.mp3
 /package-lock.json
 /.coverage*
 /test/test_outputs
+.DS_Store
+build.info
+**/.DS_Store
+models/Stable-diffusion/00v2.1_768-ema-pruned.safetensors
+models/Stable-diffusion/00v2.1_768-ema-pruned.yaml
+webui-user.bat

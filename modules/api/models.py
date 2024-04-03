@@ -335,6 +335,9 @@ class InvocationsRequest(BaseModel):
     extras_batch_payload: Optional[ExtrasBatchImagesRequest]
     interrogate_payload: Optional[InterrogateRequest]
     extra_payload: Optional[dict]
+    user_input: Optional[dict]
+    progress_payload: Optional[ProgressRequest]
+    cn_x3_image: Optional[str]  # this is now obselete, but kept here in case of rollback
 
 
 class InvocationsErrorResponse(BaseModel):
