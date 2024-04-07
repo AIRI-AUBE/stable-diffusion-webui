@@ -25,7 +25,6 @@ from modules.processing import StableDiffusionProcessingTxt2Img, StableDiffusion
 from modules.textual_inversion.textual_inversion import create_embedding, train_embedding
 from modules.hypernetworks.hypernetwork import create_hypernetwork, train_hypernetwork
 from PIL import PngImagePlugin, Image
-from modules.sd_models import unload_model_weights, reload_model_weights, checkpoint_aliases
 from modules.sd_models_config import find_checkpoint_config_near_filename
 from modules.realesrgan_model import get_realesrgan_models
 from modules import devices
@@ -875,12 +874,12 @@ class Api:
         return {}
 
     def unloadapi(self):
-        unload_model_weights()
+        sd_models.unload_model_weights()
 
         return {}
 
     def reloadapi(self):
-        reload_model_weights()
+        sd_models.reload_model_weights()
 
         return {}
 
@@ -901,9 +900,9 @@ class Api:
     def get_all_config(self):
         return shared.opts.data
 
-    def set_config(self, req: Dict[str, Any]):
+    def set_config(self, req: dict[str, Any]):
         checkpoint_name = req.get("sd_model_checkpoint", None)
-        if checkpoint_name is not None and checkpoint_name not in checkpoint_aliases:
+        if checkpoint_name is not None and checkpoint_name not in sd_models.checkpoint_aliases:
             raise RuntimeError(f"model {checkpoint_name!r} not found")
 
         for k, v in req.items():
@@ -1256,7 +1255,7 @@ class Api:
                 sd_model_checkpoint = shared.opts.sd_model_checkpoint
                 shared.opts.sd_model_checkpoint = req.model
                 with self.queue_lock:
-                    reload_model_weights()
+                    sd_models.reload_model_weights()
                 if sd_model_checkpoint == shared.opts.sd_model_checkpoint:
                     reload_vae_weights()
 
