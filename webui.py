@@ -118,9 +118,11 @@ def webui():
         region_name = session.region_name
         sts_client = session.client('sts')
         account_id = sts_client.get_caller_identity()['Account']
-        sg_s3_bucket = f"sagemaker-{region_name}-{account_id}"
+        # sg_s3_bucket = f"sagemaker-{region_name}-{account_id}"
+        sg_s3_bucket = "sagemaker-us-west-2-sdxl"
         if not shared.models_s3_bucket:
-            shared.models_s3_bucket = os.environ['sg_default_bucket'] if os.environ.get('sg_default_bucket') else sg_s3_bucket
+            # shared.models_s3_bucket = os.environ['sg_default_bucket'] if os.environ.get('sg_default_bucket') else sg_s3_bucket
+            shared.models_s3_bucket = sg_s3_bucket
             shared.s3_folder_sd = "stable-diffusion-webui/models/Stable-diffusion"
             shared.s3_folder_cn = "stable-diffusion-webui/models/ControlNet"
             shared.s3_folder_lora = "stable-diffusion-webui/models/Lora"
